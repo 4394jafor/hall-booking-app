@@ -1205,18 +1205,24 @@ public class hmx extends JFrame {
         }
     }
 
+    // دالة مساعدة لتقليل التحديثات المتكررة
+    private void updateIfChanged(JTextField tf, String v) {
+        if (tf == null) return;
+        if (!v.equals(tf.getText())) {
+            tf.setText(v);
+        }
+    }
+
     // يحسب الواجب الدفع والمتبقي ويعرضهما بصيغة IQ
     private void computeDerivedTotals() {
         if (grandTotalField == null || amountDueField == null || remainingAmountField == null) return;
 
-        int grandTotal = parseMoney(grandTotalField.getText());
-        int deposit    = parseMoney(depositAmountField != null ? depositAmountField.getText() : "0");
-        int due        = Math.max(0, grandTotal - Math.max(0, deposit));
-        amountDueField.setText(toIQ(due));
-
-        int received   = parseMoney(amountDueReceivedField != null ? amountDueReceivedField.getText() : "0");
-        int remaining  = Math.max(0, due - Math.max(0, received));
-        remainingAmountField.setText(toIQ(remaining));
+        long grandTotal = parseMoney(grandTotalField.getText());
+        long deposit    = parseMoney(depositAmountField != null ? depositAmountField.getText() : "0");
+        long received   = parseMoney(amountDueReceivedField != null ? amountDueReceivedField.getText() : "0");
+        long dueAfter   = Math.max(0L, grandTotal - Math.max(0L, deposit) - Math.max(0L, received));
+        updateIfChanged(amountDueField, toIQ(dueAfter));
+        updateIfChanged(remainingAmountField, toIQ(dueAfter));
     }
 
     // ============================ جلب العرض والتعبئة ============================
