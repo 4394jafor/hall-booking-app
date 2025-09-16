@@ -207,6 +207,9 @@ public class hmx extends JFrame {
         depositAmountField.setColumns(10);
         depositAmountField.setBounds(1236, 273, 162, 32);
         panel.add(depositAmountField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(depositAmountField);
 
         JLabel lblDepositAmount = new JLabel("المبلغ المدفوع مقدما:");
         lblDepositAmount.setHorizontalAlignment(SwingConstants.CENTER);
@@ -222,6 +225,9 @@ public class hmx extends JFrame {
         totalAmountField.setEditable(true);
         totalAmountField.setBounds(1236, 325, 162, 32);
         panel.add(totalAmountField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(totalAmountField);
 
         otherCostsField = new JTextField();
         otherCostsField.setBackground(new Color(192, 192, 192));
@@ -231,6 +237,9 @@ public class hmx extends JFrame {
         otherCostsField.setEditable(true);
         otherCostsField.setBounds(1236, 384, 162, 32);
         panel.add(otherCostsField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(otherCostsField);
 
         JLabel lblOtherCosts = new JLabel("تكاليف اخرى:");
         lblOtherCosts.setHorizontalAlignment(SwingConstants.CENTER);
@@ -276,6 +285,9 @@ public class hmx extends JFrame {
         koshaFeeField.setBackground(Color.LIGHT_GRAY);
         koshaFeeField.setBounds(1236, 435, 164, 32);
         panel.add(koshaFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(koshaFeeField);
 
         JLabel lblKoshaFee = new JLabel("اجور الكوشة:");
         lblKoshaFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -306,6 +318,9 @@ public class hmx extends JFrame {
         tablesFlowersFeeField.setBackground(Color.LIGHT_GRAY);
         tablesFlowersFeeField.setBounds(927, 275, 168, 32);
         panel.add(tablesFlowersFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(tablesFlowersFeeField);
 
         JLabel lblTablesFlowersFee = new JLabel("اجور ورد طاولات:");
         lblTablesFlowersFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -321,6 +336,9 @@ public class hmx extends JFrame {
         foamCakeMoldFeeField.setBackground(Color.LIGHT_GRAY);
         foamCakeMoldFeeField.setBounds(927, 327, 168, 32);
         panel.add(foamCakeMoldFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(foamCakeMoldFeeField);
 
         JLabel lblFoamCakeMoldFee = new JLabel("اجور قالب كيك فلين:");
         lblFoamCakeMoldFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -336,6 +354,9 @@ public class hmx extends JFrame {
         sparklersFeeField.setBackground(Color.LIGHT_GRAY);
         sparklersFeeField.setBounds(927, 386, 168, 32);
         panel.add(sparklersFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(sparklersFeeField);
 
         JLabel lblSparklersFee = new JLabel("اجور الشعالات");
         lblSparklersFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -351,6 +372,9 @@ public class hmx extends JFrame {
         shamBandFeeField.setBackground(Color.LIGHT_GRAY);
         shamBandFeeField.setBounds(927, 435, 169, 32);
         panel.add(shamBandFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(shamBandFeeField);
 
         JLabel lblShamBandFee = new JLabel("اجور الفرقة الشامية:");
         lblShamBandFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -366,6 +390,9 @@ public class hmx extends JFrame {
         maharField.setBackground(Color.LIGHT_GRAY);
         maharField.setBounds(927, 487, 169, 32);
         panel.add(maharField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(maharField);
 
         JLabel lblmahar = new JLabel("اجور طاولة مهر:");
         lblmahar.setHorizontalAlignment(SwingConstants.CENTER);
@@ -393,6 +420,9 @@ public class hmx extends JFrame {
         djFeeField.setBackground(Color.LIGHT_GRAY);
         djFeeField.setBounds(619, 273, 168, 32);
         panel.add(djFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(djFeeField);
 
         JLabel lblDJFee = new JLabel("اجور الDJ:");
         lblDJFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -408,6 +438,9 @@ public class hmx extends JFrame {
         bubblesField.setBackground(Color.LIGHT_GRAY);
         bubblesField.setBounds(619, 325, 168, 32);
         panel.add(bubblesField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(bubblesField);
 
         JLabel lblBubbles = new JLabel("الفقاعات:");
         lblBubbles.setHorizontalAlignment(SwingConstants.CENTER);
@@ -423,6 +456,9 @@ public class hmx extends JFrame {
         laserLightingFeeField.setBackground(Color.LIGHT_GRAY);
         laserLightingFeeField.setBounds(619, 384, 168, 32);
         panel.add(laserLightingFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(laserLightingFeeField);
 
         JLabel lblLaserLightingFee = new JLabel("أجور الانارة الليزرية:");
         lblLaserLightingFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -438,6 +474,9 @@ public class hmx extends JFrame {
         smokeFeeField.setBackground(Color.LIGHT_GRAY);
         smokeFeeField.setBounds(619, 437, 168, 32);
         panel.add(smokeFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(smokeFeeField);
 
         JLabel lblSmokeFee = new JLabel("دخان:");
         lblSmokeFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -453,6 +492,9 @@ public class hmx extends JFrame {
         mixerCraneCamerasFeeField.setBackground(Color.LIGHT_GRAY);
         mixerCraneCamerasFeeField.setBounds(619, 487, 168, 32);
         panel.add(mixerCraneCamerasFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(mixerCraneCamerasFeeField);
 
         JLabel lblMixerCraneCamerasFee = new JLabel("اجور-مكسر كرين كامرات:");
         lblMixerCraneCamerasFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -515,6 +557,9 @@ public class hmx extends JFrame {
         totalField.setBackground(Color.LIGHT_GRAY);
         totalField.setBounds(352, 325, 178, 32);
         panel.add(totalField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(totalField);
 
         JLabel lblTotal = new JLabel("المجموع:");
         lblTotal.setHorizontalAlignment(SwingConstants.CENTER);
@@ -530,6 +575,9 @@ public class hmx extends JFrame {
         photoFeeField.setBackground(Color.LIGHT_GRAY);
         photoFeeField.setBounds(352, 384, 178, 32);
         panel.add(photoFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(photoFeeField);
 
         JLabel lblPhoto = new JLabel("الفوتو:");
         lblPhoto.setHorizontalAlignment(SwingConstants.CENTER);
@@ -560,6 +608,9 @@ public class hmx extends JFrame {
         videoFeeField.setBackground(Color.LIGHT_GRAY);
         videoFeeField.setBounds(352, 487, 178, 32);
         panel.add(videoFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(videoFeeField);
 
         JLabel lblVideo = new JLabel("الفيديو:");
         lblVideo.setHorizontalAlignment(SwingConstants.CENTER);
@@ -575,6 +626,9 @@ public class hmx extends JFrame {
         dataShowFeeField.setBackground(Color.LIGHT_GRAY);
         dataShowFeeField.setBounds(81, 273, 178, 32);
         panel.add(dataShowFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(dataShowFeeField);
 
         JLabel lblDataShowFee = new JLabel("اجور DataShow:");
         lblDataShowFee.setHorizontalAlignment(SwingConstants.CENTER);
@@ -605,6 +659,9 @@ public class hmx extends JFrame {
         studioFeeField.setBackground(Color.LIGHT_GRAY);
         studioFeeField.setBounds(81, 384, 178, 32);
         panel.add(studioFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(studioFeeField);
 
         JLabel lblStudio = new JLabel("الاستديو:");
         lblStudio.setHorizontalAlignment(SwingConstants.CENTER);
@@ -656,6 +713,9 @@ public class hmx extends JFrame {
         cakeAmountField.setBackground(Color.LIGHT_GRAY);
         cakeAmountField.setBounds(927, 568, 184, 32);
         panel.add(cakeAmountField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(cakeAmountField);
 
         cakePiecesCountField = new JTextField();
         cakePiecesCountField.setText("");
@@ -680,6 +740,9 @@ public class hmx extends JFrame {
         grandTotalField.setBackground(Color.LIGHT_GRAY);
         grandTotalField.setBounds(1258, 790, 184, 32);
         panel.add(grandTotalField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(grandTotalField);
 
         JLabel lblGrandTotal = new JLabel("المجموع:");
         lblGrandTotal.setForeground(Color.RED);
@@ -703,6 +766,9 @@ public class hmx extends JFrame {
         amountDueField.setBackground(Color.LIGHT_GRAY);
         amountDueField.setBounds(979, 790, 189, 32);
         panel.add(amountDueField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(amountDueField);
 
         cakeCuttingFeeField = new JTextField();
         cakeCuttingFeeField.setText("");
@@ -712,6 +778,9 @@ public class hmx extends JFrame {
         cakeCuttingFeeField.setBackground(Color.LIGHT_GRAY);
         cakeCuttingFeeField.setBounds(927, 680, 184, 32);
         panel.add(cakeCuttingFeeField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(cakeCuttingFeeField);
 
         cakeMoldNumber2Field = new JTextField();
         cakeMoldNumber2Field.setText("");
@@ -751,6 +820,9 @@ public class hmx extends JFrame {
         childPlatePriceField.setBackground(Color.LIGHT_GRAY);
         childPlatePriceField.setBounds(619, 690, 168, 32);
         panel.add(childPlatePriceField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(childPlatePriceField);
 
         plateWithDrinks2PriceField = new JTextField();
         plateWithDrinks2PriceField.setText("");
@@ -760,6 +832,9 @@ public class hmx extends JFrame {
         plateWithDrinks2PriceField.setBackground(Color.LIGHT_GRAY);
         plateWithDrinks2PriceField.setBounds(10, 709, 202, 32);
         panel.add(plateWithDrinks2PriceField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(plateWithDrinks2PriceField);
 
         JLabel lblDinner = new JLabel("العشاء");
         lblDinner.setHorizontalAlignment(SwingConstants.CENTER);
@@ -841,6 +916,9 @@ public class hmx extends JFrame {
         appetizersPlatePriceField.setBackground(Color.LIGHT_GRAY);
         appetizersPlatePriceField.setBounds(10, 767, 202, 32);
         panel.add(appetizersPlatePriceField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(appetizersPlatePriceField);
 
         JLabel lblAppetizersPlatePrice = new JLabel("سعر طبق المقبلات:");
         lblAppetizersPlatePrice.setHorizontalAlignment(SwingConstants.CENTER);
@@ -881,6 +959,9 @@ public class hmx extends JFrame {
         amountDueReceivedField.setBackground(Color.LIGHT_GRAY);
         amountDueReceivedField.setBounds(671, 790, 183, 32);
         panel.add(amountDueReceivedField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(amountDueReceivedField);
 
         remainingAmountField = new JTextField();
         remainingAmountField.setText("");
@@ -890,6 +971,9 @@ public class hmx extends JFrame {
         remainingAmountField.setBackground(Color.LIGHT_GRAY);
         remainingAmountField.setBounds(426, 790, 183, 32);
         panel.add(remainingAmountField);
+        
+        // تطبيق تنسيق الأرقام بفواصل الآلاف
+        NumericFormatter.attachThousandsFormatter(remainingAmountField);
 
         JLabel lblRemaining = new JLabel("المتبقي:");
         lblRemaining.setForeground(Color.RED);
