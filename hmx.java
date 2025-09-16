@@ -60,6 +60,13 @@ public class hmx extends JFrame {
 
     // مصادر الجمع التلقائي
     private final List<JTextField> sumSources = new ArrayList<>();
+    
+    // قائمة حقول المبالغ للتحجيم التلقائي
+    private final List<JTextField> amountFields = new ArrayList<>();
+    
+    // حراس التحديث الداخلي
+    private boolean internalUpdate = false;
+    private boolean recalcScheduled = false;
 
     public hmx(int day, int month, int year, String hallName, Consumer<String> bookingCallback) {
         this.bookingStateCallback = bookingCallback;
@@ -919,9 +926,9 @@ public class hmx extends JFrame {
                 JOptionPane.showMessageDialog(this, "يرجى إدخال جميع المعلومات!", "Mohammed", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            int price = parseMoney(grandTotalField.getText());
+            long price = parseMoney(grandTotalField.getText());
             if (price <= 0) price = 300;
-            InvoiceDialog invoice = new InvoiceDialog(this, hallName, day, month, year, name, phone, mahar, price);
+            InvoiceDialog invoice = new InvoiceDialog(this, hallName, day, month, year, name, phone, mahar, (int)price);
             invoice.setVisible(true);
         });
 
@@ -1023,8 +1030,7 @@ public class hmx extends JFrame {
                 if (bookingStateCallback != null) bookingStateCallback.accept("final");
                 JOptionPane.showMessageDialog(this, "تم حفظ الحجز النهائي بنجاح.", "نجاح", JOptionPane.INFORMATION_MESSAGE);
                 loadBookingAndFillUI(hallName, day, month, year);
-                recomputeGrandTotal();
-                computeDerivedTotals();
+                scheduleRecalc();
             }
         });
 
@@ -1121,8 +1127,7 @@ public class hmx extends JFrame {
                 if (bookingStateCallback != null) bookingStateCallback.accept("temp");
                 JOptionPane.showMessageDialog(this, "تم الحجز المؤقت بنجاح!", "حجز", JOptionPane.INFORMATION_MESSAGE);
                 loadBookingAndFillUI(hallName, day, month, year);
-                recomputeGrandTotal();
-                computeDerivedTotals();
+                scheduleRecalc();
             }
         });
 
@@ -1131,12 +1136,13 @@ public class hmx extends JFrame {
                 loadBookingAndFillUI(hallName, day, month, year);
                 if (bookingStateCallback != null) bookingStateCallback.accept("cancel");
                 JOptionPane.showMessageDialog(this, "تم إلغاء آخر حجز!", "إلغاء", JOptionPane.INFORMATION_MESSAGE);
-                recomputeGrandTotal();
-                computeDerivedTotals();
+                scheduleRecalc();
             }
         });
 
         // ربط الجمع التلقائي لكل الحقول (مع استثناء الهاتف والمجموع نفسه)
+        registerAmountFields();
+        attachAmountScalingBehavior();
         setupAutoSum(panel);
 
         // ربط تحديثات المبالغ المشتقة (الواجب الدفع والمتبقي)
@@ -1145,9 +1151,8 @@ public class hmx extends JFrame {
         // تحميل البيانات عند فتح النافذة
         loadBookingAndFillUI(hallName, day, month, year);
 
-        // بعد التحميل: أعِد حساب المجموع IQ والمبالغ المشتقة
-        recomputeGrandTotal();
-        computeDerivedTotals();
+        // بعد التحميل: أعِد حساب المجموع IQ والمبالغ المشتقة باستخدام الجدولة المؤجلة
+        scheduleRecalc();
     }
 
     // ============================ دوال الجمع التلقائي (IQ) ============================
@@ -1157,21 +1162,30 @@ public class hmx extends JFrame {
         collectSumSources(root);
         for (JTextField tf : sumSources) {
             tf.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-                @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { recomputeGrandTotal(); computeDerivedTotals(); }
-                @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { recomputeGrandTotal(); computeDerivedTotals(); }
-                @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { recomputeGrandTotal(); computeDerivedTotals(); }
+                @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { 
+                    if (!internalUpdate) scheduleRecalc(); 
+                }
+                @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { 
+                    if (!internalUpdate) scheduleRecalc(); 
+                }
+                @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { 
+                    if (!internalUpdate) scheduleRecalc(); 
+                }
             });
         }
-        recomputeGrandTotal();
+        scheduleRecalc();
     }
 
     private void collectSumSources(Container container) {
         for (Component child : container.getComponents()) {
             if (child instanceof JTextField) {
                 JTextField tf = (JTextField) child;
-                // استثناء رقم الهاتف وعدم جمع حقل المجموع نفسه
+                // استثناء رقم الهاتف وعدم جمع حقل المجموع نفسه والمبالغ المشتقة والمبلغ المستلم
                 if (tf == phoneField) continue;
                 if (tf == grandTotalField) continue;
+                if (tf == amountDueField) continue;
+                if (tf == remainingAmountField) continue;
+                if (tf == amountDueReceivedField) continue; // المبالغ المستلمة ليست تكاليف
                 sumSources.add(tf);
             }
             if (child instanceof Container) {
@@ -1186,16 +1200,27 @@ public class hmx extends JFrame {
             total += parseMoney(tf.getText());
         }
         if (grandTotalField != null) {
-            grandTotalField.setText(toIQ(total)); // "12345 IQ"
+            String newTotalText = toIQ(total);
+            if (!newTotalText.equals(grandTotalField.getText())) {
+                internalUpdate = true;
+                grandTotalField.setText(newTotalText); // "12345 IQ"
+                internalUpdate = false;
+            }
         }
     }
 
     // يربط Listeners لحقول المبالغ المشتقة
     private void hookDerivedCalculations() {
         javax.swing.event.DocumentListener dl = new javax.swing.event.DocumentListener() {
-            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { computeDerivedTotals(); }
-            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { computeDerivedTotals(); }
-            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { computeDerivedTotals(); }
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { 
+                if (!internalUpdate) scheduleRecalc(); 
+            }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { 
+                if (!internalUpdate) scheduleRecalc(); 
+            }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { 
+                if (!internalUpdate) scheduleRecalc(); 
+            }
         };
         JTextField[] drivers = { grandTotalField, depositAmountField, amountDueReceivedField };
         for (JTextField tf : drivers) {
@@ -1209,14 +1234,26 @@ public class hmx extends JFrame {
     private void computeDerivedTotals() {
         if (grandTotalField == null || amountDueField == null || remainingAmountField == null) return;
 
-        int grandTotal = parseMoney(grandTotalField.getText());
-        int deposit    = parseMoney(depositAmountField != null ? depositAmountField.getText() : "0");
-        int due        = Math.max(0, grandTotal - Math.max(0, deposit));
-        amountDueField.setText(toIQ(due));
+        long grandTotal = parseMoney(grandTotalField.getText());
+        long deposit    = parseMoney(depositAmountField != null ? depositAmountField.getText() : "0");
+        long due        = Math.max(0L, grandTotal - Math.max(0L, deposit));
+        
+        String newDueText = toIQ(due);
+        if (!newDueText.equals(amountDueField.getText())) {
+            internalUpdate = true;
+            amountDueField.setText(newDueText);
+            internalUpdate = false;
+        }
 
-        int received   = parseMoney(amountDueReceivedField != null ? amountDueReceivedField.getText() : "0");
-        int remaining  = Math.max(0, due - Math.max(0, received));
-        remainingAmountField.setText(toIQ(remaining));
+        long received   = parseMoney(amountDueReceivedField != null ? amountDueReceivedField.getText() : "0");
+        long remaining  = Math.max(0L, due - Math.max(0L, received));
+        
+        String newRemainingText = toIQ(remaining);
+        if (!newRemainingText.equals(remainingAmountField.getText())) {
+            internalUpdate = true;
+            remainingAmountField.setText(newRemainingText);
+            internalUpdate = false;
+        }
     }
 
     // ============================ جلب العرض والتعبئة ============================
@@ -1443,9 +1480,8 @@ public class hmx extends JFrame {
         amountDueReceivedField.setText(nz(b.amountDueReceived));
         remainingAmountField.setText(nz(b.remainingAmount));
 
-        // بعد التعبئة من قاعدة البيانات احسب المجموع مجدداً بصيغة IQ
-        recomputeGrandTotal();
-        computeDerivedTotals();
+        // بعد التعبئة من قاعدة البيانات احسب المجموع مجدداً بصيغة IQ باستخدام الجدولة المؤجلة
+        scheduleRecalc();
     }
 
     // تحميل بيانات يوم محدد وتعبئة الواجهة والتحكم بحالة الأزرار
@@ -1482,8 +1518,7 @@ public class hmx extends JFrame {
         }
 
         // أعِد حساب المبالغ دائماً بعد التبديل
-        recomputeGrandTotal();
-        computeDerivedTotals();
+        scheduleRecalc();
     }
 
     private void setAllEditable(boolean editable) {
@@ -1883,18 +1918,124 @@ public class hmx extends JFrame {
     // ============================ أدوات مساعدة ============================
 
     // يحوّل أي نص إلى رقم؛ يتجاهل الأحرف مثل IQ والفواصل
-    private static int parseMoney(String s) {
-        if (s == null) return 0;
+    private static long parseMoney(String s) {
+        if (s == null) return 0L;
         s = s.trim();
-        if (s.isEmpty()) return 0;
+        if (s.isEmpty()) return 0L;
         s = s.replaceAll("[^0-9-]", "");
-        if (s.isEmpty() || "-".equals(s)) return 0;
-        try { return Integer.parseInt(s); } catch (NumberFormatException ex) { return 0; }
+        if (s.isEmpty() || "-".equals(s)) return 0L;
+        try { return Long.parseLong(s); } catch (NumberFormatException ex) { return 0L; }
     }
 
     // تنسيق بسيط للمجموع مع اللاحقة " IQ"
     private static String toIQ(long value) {
         // لإضافة فواصل آلاف: return String.format("%,d IQ", value);
         return value + " IQ";
+    }
+
+    // ============================ دوال التحجيم والحساب المؤجل ============================
+
+    // تسجيل حقول المبالغ للتحجيم
+    private void registerAmountFields() {
+        amountFields.clear();
+        amountFields.add(totalAmountField);
+        amountFields.add(depositAmountField);
+        amountFields.add(otherCostsField);
+        amountFields.add(koshaFeeField);
+        amountFields.add(tablesFlowersFeeField);
+        amountFields.add(foamCakeMoldFeeField);
+        amountFields.add(sparklersFeeField);
+        amountFields.add(shamBandFeeField);
+        amountFields.add(djFeeField);
+        amountFields.add(bubblesField);
+        amountFields.add(laserLightingFeeField);
+        amountFields.add(smokeFeeField);
+        amountFields.add(mixerCraneCamerasFeeField);
+        amountFields.add(extraLeftField);
+        amountFields.add(totalField);
+        amountFields.add(photoFeeField);
+        amountFields.add(videoFeeField);
+        amountFields.add(dataShowFeeField);
+        amountFields.add(studioFeeField);
+        amountFields.add(cakeAmountField);
+        amountFields.add(cakeCuttingFeeField);
+        amountFields.add(childPlatePriceField);
+        amountFields.add(plateWithDrinks2PriceField);
+        amountFields.add(appetizersPlatePriceField);
+        amountFields.add(amountDueReceivedField); // يمكن إزالتها لاحقاً إذا أراد المستخدم
+    }
+
+    // ربط سلوك التحجيم بحقول المبالغ
+    private void attachAmountScalingBehavior() {
+        for (JTextField tf : amountFields) {
+            if (tf != null) {
+                // عند فقدان التركيز
+                tf.addFocusListener(new java.awt.event.FocusListener() {
+                    @Override
+                    public void focusGained(java.awt.event.FocusEvent e) {
+                        // إزالة اللاحقة " IQ" عند التركيز للتحرير
+                        String text = tf.getText().trim();
+                        if (text.endsWith(" IQ")) {
+                            tf.setText(text.substring(0, text.length() - 3).trim());
+                        }
+                    }
+                    
+                    @Override
+                    public void focusLost(java.awt.event.FocusEvent e) {
+                        applyScaling(tf);
+                    }
+                });
+                
+                // عند الضغط على Enter
+                tf.addActionListener(e -> applyScaling(tf));
+            }
+        }
+    }
+
+    // تطبيق التحجيم على حقل المبلغ
+    private void applyScaling(JTextField tf) {
+        String text = tf.getText().trim();
+        if (text.isEmpty()) return;
+        
+        // إزالة اللاحقة إذا كانت موجودة
+        if (text.endsWith(" IQ")) {
+            text = text.substring(0, text.length() - 3).trim();
+        }
+        
+        try {
+            long value = Long.parseLong(text);
+            // تحجيم القيم
+            if (tf == totalAmountField) {
+                value *= 1_000_000L; // ضرب في مليون للمبلغ الإجمالي
+            } else {
+                value *= 1_000L; // ضرب في ألف للحقول الأخرى
+            }
+            
+            internalUpdate = true;
+            tf.setText(toIQ(value));
+            internalUpdate = false;
+            
+        } catch (NumberFormatException ex) {
+            // في حالة خطأ التحويل، اتركه كما هو
+        }
+    }
+
+    // جدولة إعادة الحساب المؤجل
+    private void scheduleRecalc() {
+        if (recalcScheduled) return;
+        recalcScheduled = true;
+        SwingUtilities.invokeLater(this::doRecalc);
+    }
+
+    // تنفيذ إعادة الحساب الفعلي
+    private void doRecalc() {
+        recalcScheduled = false;
+        internalUpdate = true;
+        try {
+            recomputeGrandTotal();
+            computeDerivedTotals();
+        } finally {
+            internalUpdate = false;
+        }
     }
 }
