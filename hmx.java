@@ -919,6 +919,7 @@ public class hmx extends JFrame {
         btnprint.setBounds(10, 116, 280, 37);
         panel.add(btnprint);
         btnprint.addActionListener(e -> {
+            // جمع المعلومات الأساسية
             String name = nameField.getText().trim();
             String phone = phoneField.getText().trim();
             String mahar = maharField.getText().trim();
@@ -926,9 +927,108 @@ public class hmx extends JFrame {
                 JOptionPane.showMessageDialog(this, "يرجى إدخال جميع المعلومات!", "Mohammed", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            long price = parseMoney(grandTotalField.getText());
-            if (price <= 0) price = 300;
-            InvoiceDialog invoice = new InvoiceDialog(this, hallName, day, month, year, name, phone, mahar, (int)price);
+            
+            // جمع جميع تفاصيل المناسبة
+            String eventType            = String.valueOf(comboBox.getSelectedItem()).trim();
+            String eventTime            = String.valueOf(comtime.getSelectedItem()).trim();
+            String phonePolicy          = String.valueOf(comphont.getSelectedItem()).trim();
+            String genderType           = String.valueOf(genderCombo.getSelectedItem()).trim();
+            String sweetsProvider       = String.valueOf(sweetsProviderCombo.getSelectedItem()).trim();
+            String tableClothColor      = String.valueOf(tableClothColorCombo.getSelectedItem()).trim();
+            String djName               = String.valueOf(djNameCombo.getSelectedItem()).trim();
+
+            // جمع الأعداد والمبالغ
+            String guestsCount          = numberField.getText().trim();
+            String depositAmount        = depositAmountField.getText().trim();
+            String totalAmount          = totalAmountField.getText().trim();
+            String otherCosts           = otherCostsField.getText().trim();
+            String koshaFee             = koshaFeeField.getText().trim();
+            String koshaNumber          = koshaNumberField.getText().trim();
+            String tablesFlowersFee     = tablesFlowersFeeField.getText().trim();
+
+            // جمع المؤثرات والخدمات
+            String foamCakeMoldFee      = foamCakeMoldFeeField.getText().trim();
+            String sparklersFee         = sparklersFeeField.getText().trim();
+            String shamBandFee          = shamBandFeeField.getText().trim();
+            String djFee                = djFeeField.getText().trim();
+            String bubblesFee           = bubblesField.getText().trim();
+            String laserLightingFee     = laserLightingFeeField.getText().trim();
+            String smokeFee             = smokeFeeField.getText().trim();
+            String mixerCraneCamerasFee = mixerCraneCamerasFeeField.getText().trim();
+
+            // جمع التصوير والتوثيق
+            String camerasCount         = extraLeftField.getText().trim();
+            String camerasTotal         = totalField.getText().trim();
+            String photoFee             = photoFeeField.getText().trim();
+            String photosCount          = photosCountField.getText().trim();
+            String videoFee             = videoFeeField.getText().trim();
+            String datashowFee          = dataShowFeeField.getText().trim();
+            String datashowCount        = dataShowCountField.getText().trim();
+            String studioFee            = studioFeeField.getText().trim();
+
+            // جمع تفاصيل الكيك
+            String cakeMoldsCount       = cakeMoldsCountField.getText().trim();
+            String cakeMoldNumber       = cakeMoldNumberField.getText().trim();
+            String cakeAmount           = cakeAmountField.getText().trim();
+            String cakePiecesCount      = cakePiecesCountField.getText().trim();
+            String cakeCuttingFee       = cakeCuttingFeeField.getText().trim();
+            String cakeMoldNumber2      = cakeMoldNumber2Field.getText().trim();
+
+            // جمع تفاصيل الأطفال والمقبلات
+            String childPlatesCount     = childPlatesCountField.getText().trim();
+            String childPlatePrice      = childPlatePriceField.getText().trim();
+            String plateWithDrinks2Price= plateWithDrinks2PriceField.getText().trim();
+            String appetizersPlatePrice = appetizersPlatePriceField.getText().trim();
+
+            // جمع خيارات العشاء
+            String dinnerOption1        = String.valueOf(dinnerOption1Combo.getSelectedItem()).trim();
+            String dinnerOption2        = String.valueOf(dinnerOption2Combo.getSelectedItem()).trim();
+            String dinnerOption3        = String.valueOf(dinnerOption3Combo.getSelectedItem()).trim();
+            String dinnerOption4        = String.valueOf(dinnerOption4Combo.getSelectedItem()).trim();
+            String dinnerOption5        = String.valueOf(dinnerOption5Combo.getSelectedItem()).trim();
+
+            // جمع خيارات المقبلات والأطفال
+            String appetizersOption1    = String.valueOf(appetizersOption1Combo.getSelectedItem()).trim();
+            String appetizersOption2    = String.valueOf(appetizersOption2Combo.getSelectedItem()).trim();
+            String kidsPlateOption1     = String.valueOf(kidsPlateOption1Combo.getSelectedItem()).trim();
+            String kidsPlateOption2     = String.valueOf(kidsPlateOption2Combo.getSelectedItem()).trim();
+
+            // جمع الإضافات الأخرى
+            String sparklersCountVal    = String.valueOf(sparklersCountCombo.getSelectedItem()).trim();
+            String breadOvenType        = String.valueOf(breadOvenTypeCombo.getSelectedItem()).trim();
+            String crane                = craneCheckbox.isSelected() ? "نعم" : "لا";
+
+            // جمع الإجماليات النهائية
+            String grandTotal           = grandTotalField.getText().trim();
+            String amountDue            = amountDueField.getText().trim();
+            String amountDueReceived    = amountDueReceivedField.getText().trim();
+            String remainingAmount      = remainingAmountField.getText().trim();
+
+            // إنشاء وعرض نافذة الفاتورة الشاملة
+            InvoiceDialog invoice = new InvoiceDialog(this, hallName, day, month, year,
+                    // المعلومات الأساسية
+                    name, phone, mahar,
+                    // تفاصيل المناسبة
+                    eventType, eventTime, phonePolicy, genderType, sweetsProvider, tableClothColor, djName,
+                    // الأعداد والمبالغ
+                    guestsCount, depositAmount, totalAmount, otherCosts, koshaFee, koshaNumber, tablesFlowersFee,
+                    // المؤثرات والخدمات
+                    foamCakeMoldFee, sparklersFee, shamBandFee, djFee, bubblesFee, laserLightingFee, smokeFee, mixerCraneCamerasFee,
+                    // التصوير والتوثيق
+                    camerasCount, camerasTotal, photoFee, photosCount, videoFee, datashowFee, datashowCount, studioFee,
+                    // الكيك
+                    cakeMoldsCount, cakeMoldNumber, cakeAmount, cakePiecesCount, cakeCuttingFee, cakeMoldNumber2,
+                    // الأطفال والمقبلات
+                    childPlatesCount, childPlatePrice, plateWithDrinks2Price, appetizersPlatePrice,
+                    // خيارات العشاء
+                    dinnerOption1, dinnerOption2, dinnerOption3, dinnerOption4, dinnerOption5,
+                    // خيارات المقبلات والأطفال
+                    appetizersOption1, appetizersOption2, kidsPlateOption1, kidsPlateOption2,
+                    // الإضافات الأخرى
+                    sparklersCountVal, breadOvenType, crane,
+                    // الإجماليات النهائية
+                    grandTotal, amountDue, amountDueReceived, remainingAmount);
+            
             invoice.setVisible(true);
         });
 
@@ -2036,6 +2136,250 @@ public class hmx extends JFrame {
             computeDerivedTotals();
         } finally {
             internalUpdate = false;
+        }
+    }
+}
+
+// ===========================================
+// فئة نافذة الفاتورة الشاملة
+// ===========================================
+
+class InvoiceDialog extends JDialog {
+    
+    public InvoiceDialog(JFrame parent, String hallName, int day, int month, int year,
+                        // المعلومات الأساسية
+                        String name, String phone, String mahar,
+                        // تفاصيل المناسبة
+                        String eventType, String eventTime, String phonePolicy, String genderType,
+                        String sweetsProvider, String tableClothColor, String djName,
+                        // الأعداد والمبالغ
+                        String guestsCount, String depositAmount, String totalAmount, String otherCosts,
+                        String koshaFee, String koshaNumber, String tablesFlowersFee,
+                        // المؤثرات والخدمات
+                        String foamCakeMoldFee, String sparklersFee, String shamBandFee, String djFee,
+                        String bubblesFee, String laserLightingFee, String smokeFee, String mixerCraneCamerasFee,
+                        // التصوير والتوثيق
+                        String camerasCount, String camerasTotal, String photoFee, String photosCount,
+                        String videoFee, String datashowFee, String datashowCount, String studioFee,
+                        // الكيك
+                        String cakeMoldsCount, String cakeMoldNumber, String cakeAmount, String cakePiecesCount,
+                        String cakeCuttingFee, String cakeMoldNumber2,
+                        // الأطفال والمقبلات
+                        String childPlatesCount, String childPlatePrice, String plateWithDrinks2Price,
+                        String appetizersPlatePrice,
+                        // خيارات العشاء والمقبلات
+                        String dinnerOption1, String dinnerOption2, String dinnerOption3,
+                        String dinnerOption4, String dinnerOption5,
+                        String appetizersOption1, String appetizersOption2,
+                        String kidsPlateOption1, String kidsPlateOption2,
+                        // إضافات أخرى
+                        String sparklersCountVal, String breadOvenType, String crane,
+                        // الإجماليات النهائية
+                        String grandTotal, String amountDue, String amountDueReceived, String remainingAmount) {
+        
+        super(parent, "فاتورة حجز القاعة - " + hallName, true);
+        
+        // إعداد النافذة
+        setSize(800, 900);
+        setLocationRelativeTo(parent);
+        setLayout(new BorderLayout());
+        
+        // إنشاء لوحة التمرير للفاتورة
+        JPanel invoicePanel = new JPanel();
+        invoicePanel.setLayout(new BoxLayout(invoicePanel, BoxLayout.Y_AXIS));
+        invoicePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        invoicePanel.setBackground(Color.WHITE);
+        
+        // عنوان الفاتورة
+        JLabel titleLabel = new JLabel("فاتورة حجز قاعة " + hallName);
+        titleLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        invoicePanel.add(titleLabel);
+        invoicePanel.add(Box.createVerticalStrut(10));
+        
+        // تاريخ الحجز
+        JLabel dateLabel = new JLabel("تاريخ الحجز: " + day + "/" + month + "/" + year);
+        dateLabel.setFont(new Font("Tahoma", Font.BOLD, 18));
+        dateLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        dateLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        invoicePanel.add(dateLabel);
+        invoicePanel.add(Box.createVerticalStrut(20));
+        
+        // إضافة خط فاصل
+        JSeparator separator1 = new JSeparator();
+        invoicePanel.add(separator1);
+        invoicePanel.add(Box.createVerticalStrut(15));
+        
+        // المعلومات الأساسية
+        addSectionTitle(invoicePanel, "المعلومات الأساسية");
+        addField(invoicePanel, "الاسم:", name);
+        addField(invoicePanel, "رقم الهاتف:", phone);
+        addField(invoicePanel, "اجور طاولة مهر:", mahar);
+        
+        // تفاصيل المناسبة
+        addSectionTitle(invoicePanel, "تفاصيل المناسبة");
+        addField(invoicePanel, "نوع المناسبة:", eventType);
+        addField(invoicePanel, "وقت المناسبة:", eventTime);
+        addField(invoicePanel, "عدد المدعويين:", guestsCount);
+        addField(invoicePanel, "نوع الجنس:", genderType);
+        addField(invoicePanel, "سحب الهواتف:", phonePolicy);
+        
+        // الخدمات والتجهيزات
+        addSectionTitle(invoicePanel, "الخدمات والتجهيزات");
+        addField(invoicePanel, "مقدم الحلويات:", sweetsProvider);
+        addField(invoicePanel, "لون فرش الطاولات:", tableClothColor);
+        addField(invoicePanel, "D.J:", djName);
+        
+        // المبالغ والرسوم الأساسية
+        addSectionTitle(invoicePanel, "المبالغ والرسوم");
+        addField(invoicePanel, "المبلغ المدفوع مقدما:", depositAmount);
+        addField(invoicePanel, "المبلغ الاجمالي:", totalAmount);
+        addField(invoicePanel, "تكاليف اخرى:", otherCosts);
+        addField(invoicePanel, "اجور الكوشة:", koshaFee);
+        addField(invoicePanel, "رقم الكوشة:", koshaNumber);
+        addField(invoicePanel, "اجور ورد طاولات:", tablesFlowersFee);
+        
+        // المؤثرات والخدمات الخاصة
+        addSectionTitle(invoicePanel, "المؤثرات والخدمات الخاصة");
+        addField(invoicePanel, "اجور قالب كيك فلين:", foamCakeMoldFee);
+        addField(invoicePanel, "اجور الشعالات:", sparklersFee);
+        addField(invoicePanel, "عدد الشعالات:", sparklersCountVal);
+        addField(invoicePanel, "اجور الفرقة الشامية:", shamBandFee);
+        addField(invoicePanel, "اجور D.J:", djFee);
+        addField(invoicePanel, "اجور الفقاعات:", bubblesFee);
+        addField(invoicePanel, "اجور الليزر:", laserLightingFee);
+        addField(invoicePanel, "اجور الدخان:", smokeFee);
+        addField(invoicePanel, "اجور الميكسر والرافعة والكاميرات:", mixerCraneCamerasFee);
+        addField(invoicePanel, "نوع فرن الخبز:", breadOvenType);
+        addField(invoicePanel, "الرافعة:", crane);
+        
+        // التصوير والتوثيق
+        addSectionTitle(invoicePanel, "التصوير والتوثيق");
+        addField(invoicePanel, "عدد الكاميرات:", camerasCount);
+        addField(invoicePanel, "المجموع:", camerasTotal);
+        addField(invoicePanel, "الصور:", photoFee);
+        addField(invoicePanel, "عدد الصور:", photosCount);
+        addField(invoicePanel, "الفيديو:", videoFee);
+        addField(invoicePanel, "الداتا شو:", datashowFee);
+        addField(invoicePanel, "عدد الداتا شو:", datashowCount);
+        addField(invoicePanel, "الستوديو:", studioFee);
+        
+        // الكيك
+        addSectionTitle(invoicePanel, "الكيك");
+        addField(invoicePanel, "عدد قوالب الكيك:", cakeMoldsCount);
+        addField(invoicePanel, "رقم قالب الكيك:", cakeMoldNumber);
+        addField(invoicePanel, "كمية الكيك:", cakeAmount);
+        addField(invoicePanel, "عدد قطع الكيك:", cakePiecesCount);
+        addField(invoicePanel, "اجور تقطيع الكيك:", cakeCuttingFee);
+        addField(invoicePanel, "رقم قالب الكيك 2:", cakeMoldNumber2);
+        
+        // الأطفال والمقبلات
+        addSectionTitle(invoicePanel, "الأطفال والمقبلات");
+        addField(invoicePanel, "العدد:", childPlatesCount);
+        addField(invoicePanel, "سعر طبق الطفل:", childPlatePrice);
+        addField(invoicePanel, "سعر الطبق مع المشروبات 2:", plateWithDrinks2Price);
+        addField(invoicePanel, "سعر طبق المقبلات:", appetizersPlatePrice);
+        
+        // خيارات العشاء
+        addSectionTitle(invoicePanel, "خيارات العشاء");
+        addField(invoicePanel, "خيار العشاء 1:", dinnerOption1);
+        addField(invoicePanel, "خيار العشاء 2:", dinnerOption2);
+        addField(invoicePanel, "خيار العشاء 3:", dinnerOption3);
+        addField(invoicePanel, "خيار العشاء 4:", dinnerOption4);
+        addField(invoicePanel, "خيار العشاء 5:", dinnerOption5);
+        
+        // خيارات المقبلات والأطفال
+        addSectionTitle(invoicePanel, "خيارات المقبلات والأطفال");
+        addField(invoicePanel, "خيار المقبلات 1:", appetizersOption1);
+        addField(invoicePanel, "خيار المقبلات 2:", appetizersOption2);
+        addField(invoicePanel, "خيار طبق الأطفال 1:", kidsPlateOption1);
+        addField(invoicePanel, "خيار طبق الأطفال 2:", kidsPlateOption2);
+        
+        // إضافة خط فاصل قبل الإجماليات
+        JSeparator separator2 = new JSeparator();
+        invoicePanel.add(Box.createVerticalStrut(15));
+        invoicePanel.add(separator2);
+        invoicePanel.add(Box.createVerticalStrut(15));
+        
+        // الإجماليات النهائية
+        addSectionTitle(invoicePanel, "الإجماليات النهائية");
+        addField(invoicePanel, "المجموع الكلي:", grandTotal, true);
+        addField(invoicePanel, "المبلغ المطلوب:", amountDue, true);
+        addField(invoicePanel, "المبلغ المستلم:", amountDueReceived, true);
+        addField(invoicePanel, "المتبقي:", remainingAmount, true);
+        
+        // إضافة لوحة التمرير
+        JScrollPane scrollPane = new JScrollPane(invoicePanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollPane, BorderLayout.CENTER);
+        
+        // أزرار التحكم
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton printButton = new JButton("طباعة");
+        JButton closeButton = new JButton("إغلاق");
+        
+        printButton.setFont(new Font("Tahoma", Font.BOLD, 14));
+        closeButton.setFont(new Font("Tahoma", Font.BOLD, 14));
+        
+        printButton.addActionListener(e -> {
+            // يمكن إضافة وظائف الطباعة الفعلية هنا
+            JOptionPane.showMessageDialog(this, "سيتم إضافة وظيفة الطباعة قريباً", "طباعة", JOptionPane.INFORMATION_MESSAGE);
+        });
+        
+        closeButton.addActionListener(e -> dispose());
+        
+        buttonPanel.add(printButton);
+        buttonPanel.add(closeButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+    
+    // دالة مساعدة لإضافة عنوان قسم
+    private void addSectionTitle(JPanel panel, String title) {
+        panel.add(Box.createVerticalStrut(15));
+        JLabel sectionLabel = new JLabel(title);
+        sectionLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
+        sectionLabel.setForeground(new Color(0, 102, 153));
+        sectionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        panel.add(sectionLabel);
+        panel.add(Box.createVerticalStrut(5));
+        
+        // خط تحت العنوان
+        JSeparator separator = new JSeparator();
+        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        panel.add(separator);
+        panel.add(Box.createVerticalStrut(10));
+    }
+    
+    // دالة مساعدة لإضافة حقل عادي
+    private void addField(JPanel panel, String label, String value) {
+        addField(panel, label, value, false);
+    }
+    
+    // دالة مساعدة لإضافة حقل مع إمكانية التمييز (للإجماليات)
+    private void addField(JPanel panel, String label, String value, boolean highlight) {
+        if (value != null && !value.trim().isEmpty()) {
+            JPanel fieldPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            fieldPanel.setBackground(Color.WHITE);
+            
+            JLabel labelComponent = new JLabel(label);
+            JLabel valueComponent = new JLabel(value);
+            
+            labelComponent.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            valueComponent.setFont(new Font("Tahoma", highlight ? Font.BOLD : Font.PLAIN, 14));
+            
+            if (highlight) {
+                labelComponent.setForeground(new Color(0, 102, 0));
+                valueComponent.setForeground(new Color(0, 102, 0));
+            }
+            
+            fieldPanel.add(valueComponent);
+            fieldPanel.add(Box.createHorizontalStrut(10));
+            fieldPanel.add(labelComponent);
+            
+            panel.add(fieldPanel);
+            panel.add(Box.createVerticalStrut(3));
         }
     }
 }
