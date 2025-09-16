@@ -60,6 +60,13 @@ public class hmx extends JFrame {
 
     // مصادر الجمع التلقائي
     private final List<JTextField> sumSources = new ArrayList<>();
+    
+    // قائمة حقول المبالغ للتحجيم التلقائي
+    private final List<JTextField> amountFields = new ArrayList<>();
+    
+    // حراس التحديث الداخلي
+    private boolean internalUpdate = false;
+    private boolean recalcScheduled = false;
 
     public hmx(int day, int month, int year, String hallName, Consumer<String> bookingCallback) {
         this.bookingStateCallback = bookingCallback;
@@ -904,4 +911,1131 @@ public class hmx extends JFrame {
         lblCakeSection.setBounds(927, 536, 588, 24);
         panel.add(lblCakeSection);
 
-    }}
+        // زر الطباعة
+        btnprint = new JButton("طباعه");
+        btnprint.setForeground(new Color(255, 255, 255));
+        btnprint.setBackground(new Color(47, 79, 79));
+        btnprint.setFont(new Font("Tahoma", Font.BOLD, 13));
+        btnprint.setBounds(10, 116, 280, 37);
+        panel.add(btnprint);
+        btnprint.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            String phone = phoneField.getText().trim();
+            String mahar = maharField.getText().trim();
+            if (name.isEmpty() || phone.isEmpty() || mahar.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "يرجى إدخال جميع المعلومات!", "Mohammed", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            long price = parseMoney(grandTotalField.getText());
+            if (price <= 0) price = 300;
+            InvoiceDialog invoice = new InvoiceDialog(this, hallName, day, month, year, name, phone, mahar, (int)price);
+            invoice.setVisible(true);
+        });
+
+        // ===================== Listeners للحفظ =====================
+
+        btnFinalBooking.addActionListener(e -> {
+            String name  = nameField.getText().trim();
+            String phone = phoneField.getText().trim();
+            String mahar = maharField.getText().trim();
+
+            if (name.isEmpty() || phone.isEmpty() || mahar.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "يرجى إدخال جميع المعلومات!", "خطأ", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String eventType            = String.valueOf(comboBox.getSelectedItem()).trim();
+            String eventTime            = String.valueOf(comtime.getSelectedItem()).trim();
+            String phonePolicy          = String.valueOf(comphont.getSelectedItem()).trim();
+            String genderType           = String.valueOf(genderCombo.getSelectedItem()).trim();
+            String sweetsProvider       = String.valueOf(sweetsProviderCombo.getSelectedItem()).trim();
+            String tableClothColor      = String.valueOf(tableClothColorCombo.getSelectedItem()).trim();
+            String djName               = String.valueOf(djNameCombo.getSelectedItem()).trim();
+
+            String guestsCount          = numberField.getText().trim();
+            String depositAmount        = depositAmountField.getText().trim();
+            String totalAmount          = totalAmountField.getText().trim();
+            String otherCosts           = otherCostsField.getText().trim();
+            String koshaFee             = koshaFeeField.getText().trim();
+            String koshaNumber          = koshaNumberField.getText().trim();
+            String tablesFlowersFee     = tablesFlowersFeeField.getText().trim();
+
+            String foamCakeMoldFee      = foamCakeMoldFeeField.getText().trim();
+            String sparklersFee         = sparklersFeeField.getText().trim();
+            String shamBandFee          = shamBandFeeField.getText().trim();
+            String djFee                = djFeeField.getText().trim();
+            String bubblesFee           = bubblesField.getText().trim();
+            String laserLightingFee     = laserLightingFeeField.getText().trim();
+            String smokeFee             = smokeFeeField.getText().trim();
+            String mixerCraneCamerasFee = mixerCraneCamerasFeeField.getText().trim();
+
+            String camerasCount         = extraLeftField.getText().trim();
+            String camerasTotal         = totalField.getText().trim();
+            String photoFee             = photoFeeField.getText().trim();
+            String photosCount          = photosCountField.getText().trim();
+            String videoFee             = videoFeeField.getText().trim();
+            String datashowFee          = dataShowFeeField.getText().trim();
+            String datashowCount        = dataShowCountField.getText().trim();
+            String studioFee            = studioFeeField.getText().trim();
+
+            String cakeMoldsCount       = cakeMoldsCountField.getText().trim();
+            String cakeMoldNumber       = cakeMoldNumberField.getText().trim();
+            String cakeAmount           = cakeAmountField.getText().trim();
+            String cakePiecesCount      = cakePiecesCountField.getText().trim();
+            String cakeCuttingFee       = cakeCuttingFeeField.getText().trim();
+            String cakeMoldNumber2      = cakeMoldNumber2Field.getText().trim();
+
+            String childPlatesCount     = childPlatesCountField.getText().trim();
+            String childPlatePrice      = childPlatePriceField.getText().trim();
+            String plateWithDrinks2Price= plateWithDrinks2PriceField.getText().trim();
+            String appetizersPlatePrice = appetizersPlatePriceField.getText().trim();
+
+            String dinnerOption1        = String.valueOf(dinnerOption1Combo.getSelectedItem()).trim();
+            String dinnerOption2        = String.valueOf(dinnerOption2Combo.getSelectedItem()).trim();
+            String dinnerOption3        = String.valueOf(dinnerOption3Combo.getSelectedItem()).trim();
+            String dinnerOption4        = String.valueOf(dinnerOption4Combo.getSelectedItem()).trim();
+            String dinnerOption5        = String.valueOf(dinnerOption5Combo.getSelectedItem()).trim();
+
+            String appetizersOption1    = String.valueOf(appetizersOption1Combo.getSelectedItem()).trim();
+            String appetizersOption2    = String.valueOf(appetizersOption2Combo.getSelectedItem()).trim();
+
+            String kidsPlateOption1     = String.valueOf(kidsPlateOption1Combo.getSelectedItem()).trim();
+            String kidsPlateOption2     = String.valueOf(kidsPlateOption2Combo.getSelectedItem()).trim();
+
+            String sparklersCountVal    = String.valueOf(sparklersCountCombo.getSelectedItem()).trim();
+            String breadOvenType        = String.valueOf(breadOvenTypeCombo.getSelectedItem()).trim();
+            String crane                = craneCheckbox.isSelected() ? "نعم" : "لا";
+
+            String grandTotal           = grandTotalField.getText().trim();
+            String amountDue            = amountDueField.getText().trim();
+            String amountDueReceived    = amountDueReceivedField.getText().trim();
+            String remainingAmount      = remainingAmountField.getText().trim();
+
+            deleteTempBookings(hallName, day, month, year);
+
+            // نستخدم الـ overload بدون bookingType
+            if (saveBooking1(
+                    hallName, day, month, year, name, phone, mahar,
+                    eventType, eventTime, phonePolicy, genderType, sweetsProvider, tableClothColor, djName,
+                    guestsCount, depositAmount, totalAmount, otherCosts, koshaFee, koshaNumber, tablesFlowersFee,
+                    foamCakeMoldFee, sparklersFee, shamBandFee, djFee, bubblesFee, laserLightingFee, smokeFee, mixerCraneCamerasFee,
+                    camerasCount, camerasTotal, photoFee, photosCount, videoFee, datashowFee, datashowCount, studioFee,
+                    cakeMoldsCount, cakeMoldNumber, cakeAmount, cakePiecesCount, cakeCuttingFee, cakeMoldNumber2,
+                    childPlatesCount, childPlatePrice, plateWithDrinks2Price, appetizersPlatePrice,
+                    dinnerOption1, dinnerOption2, dinnerOption3, dinnerOption4, dinnerOption5,
+                    appetizersOption1, appetizersOption2, kidsPlateOption1, kidsPlateOption2,
+                    sparklersCountVal, breadOvenType, crane,
+                    grandTotal, amountDue, amountDueReceived, remainingAmount
+            )) {
+                if (bookingStateCallback != null) bookingStateCallback.accept("final");
+                JOptionPane.showMessageDialog(this, "تم حفظ الحجز النهائي بنجاح.", "نجاح", JOptionPane.INFORMATION_MESSAGE);
+                loadBookingAndFillUI(hallName, day, month, year);
+                scheduleRecalc();
+            }
+        });
+
+        btnTempBooking.addActionListener(e -> {
+            String name  = nameField.getText().trim();
+            String phone = phoneField.getText().trim();
+            String mahar = maharField.getText().trim();
+
+            if (name.isEmpty() || phone.isEmpty() || mahar.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "يرجى إدخال جميع المعلومات!", "خطأ", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String eventType            = String.valueOf(comboBox.getSelectedItem()).trim();
+            String eventTime            = String.valueOf(comtime.getSelectedItem()).trim();
+            String phonePolicy          = String.valueOf(comphont.getSelectedItem()).trim();
+            String genderType           = String.valueOf(genderCombo.getSelectedItem()).trim();
+            String sweetsProvider       = String.valueOf(sweetsProviderCombo.getSelectedItem()).trim();
+            String tableClothColor      = String.valueOf(tableClothColorCombo.getSelectedItem()).trim();
+            String djName               = String.valueOf(djNameCombo.getSelectedItem()).trim();
+
+            String guestsCount          = numberField.getText().trim();
+            String depositAmount        = depositAmountField.getText().trim();
+            String totalAmount          = totalAmountField.getText().trim();
+            String otherCosts           = otherCostsField.getText().trim();
+            String koshaFee             = koshaFeeField.getText().trim();
+            String koshaNumber          = koshaNumberField.getText().trim();
+            String tablesFlowersFee     = tablesFlowersFeeField.getText().trim();
+
+            String foamCakeMoldFee      = foamCakeMoldFeeField.getText().trim();
+            String sparklersFee         = sparklersFeeField.getText().trim();
+            String shamBandFee          = shamBandFeeField.getText().trim();
+            String djFee                = djFeeField.getText().trim();
+            String bubblesFee           = bubblesField.getText().trim();
+            String laserLightingFee     = laserLightingFeeField.getText().trim();
+            String smokeFee             = smokeFeeField.getText().trim();
+            String mixerCraneCamerasFee = mixerCraneCamerasFeeField.getText().trim();
+
+            String camerasCount         = extraLeftField.getText().trim();
+            String camerasTotal         = totalField.getText().trim();
+            String photoFee             = photoFeeField.getText().trim();
+            String photosCount          = photosCountField.getText().trim();
+            String videoFee             = videoFeeField.getText().trim();
+            String datashowFee          = dataShowFeeField.getText().trim();
+            String datashowCount        = dataShowCountField.getText().trim();
+            String studioFee            = studioFeeField.getText().trim();
+
+            String cakeMoldsCount       = cakeMoldsCountField.getText().trim();
+            String cakeMoldNumber       = cakeMoldNumberField.getText().trim();
+            String cakeAmount           = cakeAmountField.getText().trim();
+            String cakePiecesCount      = cakePiecesCountField.getText().trim();
+            String cakeCuttingFee       = cakeCuttingFeeField.getText().trim();
+            String cakeMoldNumber2      = cakeMoldNumber2Field.getText().trim();
+
+            String childPlatesCount     = childPlatesCountField.getText().trim();
+            String childPlatePrice      = childPlatePriceField.getText().trim();
+            String plateWithDrinks2Price= plateWithDrinks2PriceField.getText().trim();
+            String appetizersPlatePrice = appetizersPlatePriceField.getText().trim();
+
+            String dinnerOption1        = String.valueOf(dinnerOption1Combo.getSelectedItem()).trim();
+            String dinnerOption2        = String.valueOf(dinnerOption2Combo.getSelectedItem()).trim();
+            String dinnerOption3        = String.valueOf(dinnerOption3Combo.getSelectedItem()).trim();
+            String dinnerOption4        = String.valueOf(dinnerOption4Combo.getSelectedItem()).trim();
+            String dinnerOption5        = String.valueOf(dinnerOption5Combo.getSelectedItem()).trim();
+
+            String appetizersOption1    = String.valueOf(appetizersOption1Combo.getSelectedItem()).trim();
+            String appetizersOption2    = String.valueOf(appetizersOption2Combo.getSelectedItem()).trim();
+
+            String kidsPlateOption1     = String.valueOf(kidsPlateOption1Combo.getSelectedItem()).trim();
+            String kidsPlateOption2     = String.valueOf(kidsPlateOption2Combo.getSelectedItem()).trim();
+
+            String sparklersCountVal    = String.valueOf(sparklersCountCombo.getSelectedItem()).trim();
+            String breadOvenType        = String.valueOf(breadOvenTypeCombo.getSelectedItem()).trim();
+            String crane                = craneCheckbox.isSelected() ? "نعم" : "لا";
+
+            String grandTotal           = grandTotalField.getText().trim();
+            String amountDue            = amountDueField.getText().trim();
+            String amountDueReceived    = amountDueReceivedField.getText().trim();
+            String remainingAmount      = remainingAmountField.getText().trim();
+
+            if (saveTempBooking1(
+                    hallName, day, month, year, name, phone, mahar,
+                    eventType, eventTime, phonePolicy, genderType, sweetsProvider, tableClothColor, djName,
+                    guestsCount, depositAmount, totalAmount, otherCosts, koshaFee, koshaNumber, tablesFlowersFee,
+                    foamCakeMoldFee, sparklersFee, shamBandFee, djFee, bubblesFee, laserLightingFee, smokeFee, mixerCraneCamerasFee,
+                    camerasCount, camerasTotal, photoFee, photosCount, videoFee, datashowFee, datashowCount, studioFee,
+                    cakeMoldsCount, cakeMoldNumber, cakeAmount, cakePiecesCount, cakeCuttingFee, cakeMoldNumber2,
+                    childPlatesCount, childPlatePrice, plateWithDrinks2Price, appetizersPlatePrice,
+                    dinnerOption1, dinnerOption2, dinnerOption3, dinnerOption4, dinnerOption5,
+                    appetizersOption1, appetizersOption2, kidsPlateOption1, kidsPlateOption2,
+                    sparklersCountVal, breadOvenType, crane,
+                    grandTotal, amountDue, amountDueReceived, remainingAmount
+            )) {
+                if (bookingStateCallback != null) bookingStateCallback.accept("temp");
+                JOptionPane.showMessageDialog(this, "تم الحجز المؤقت بنجاح!", "حجز", JOptionPane.INFORMATION_MESSAGE);
+                loadBookingAndFillUI(hallName, day, month, year);
+                scheduleRecalc();
+            }
+        });
+
+        btnCancelBooking.addActionListener(e -> {
+            if (deleteLatestBookingForDate(hallName, day, month, year)) {
+                loadBookingAndFillUI(hallName, day, month, year);
+                if (bookingStateCallback != null) bookingStateCallback.accept("cancel");
+                JOptionPane.showMessageDialog(this, "تم إلغاء آخر حجز!", "إلغاء", JOptionPane.INFORMATION_MESSAGE);
+                scheduleRecalc();
+            }
+        });
+
+        // ربط الجمع التلقائي لكل الحقول (مع استثناء الهاتف والمجموع نفسه)
+        registerAmountFields();
+        attachAmountScalingBehavior();
+        setupAutoSum(panel);
+
+        // ربط تحديثات المبالغ المشتقة (الواجب الدفع والمتبقي)
+        hookDerivedCalculations();
+
+        // تحميل البيانات عند فتح النافذة
+        loadBookingAndFillUI(hallName, day, month, year);
+
+        // بعد التحميل: أعِد حساب المجموع IQ والمبالغ المشتقة باستخدام الجدولة المؤجلة
+        scheduleRecalc();
+    }
+
+    // ============================ دوال الجمع التلقائي (IQ) ============================
+
+    private void setupAutoSum(Container root) {
+        sumSources.clear();
+        collectSumSources(root);
+        for (JTextField tf : sumSources) {
+            tf.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { 
+                    if (!internalUpdate) scheduleRecalc(); 
+                }
+                @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { 
+                    if (!internalUpdate) scheduleRecalc(); 
+                }
+                @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { 
+                    if (!internalUpdate) scheduleRecalc(); 
+                }
+            });
+        }
+        scheduleRecalc();
+    }
+
+    private void collectSumSources(Container container) {
+        for (Component child : container.getComponents()) {
+            if (child instanceof JTextField) {
+                JTextField tf = (JTextField) child;
+                // استثناء رقم الهاتف وعدم جمع حقل المجموع نفسه والمبالغ المشتقة والمبلغ المستلم
+                if (tf == phoneField) continue;
+                if (tf == grandTotalField) continue;
+                if (tf == amountDueField) continue;
+                if (tf == remainingAmountField) continue;
+                if (tf == amountDueReceivedField) continue; // المبالغ المستلمة ليست تكاليف
+                sumSources.add(tf);
+            }
+            if (child instanceof Container) {
+                collectSumSources((Container) child);
+            }
+        }
+    }
+
+    private void recomputeGrandTotal() {
+        long total = 0L;
+        for (JTextField tf : sumSources) {
+            total += parseMoney(tf.getText());
+        }
+        if (grandTotalField != null) {
+            String newTotalText = toIQ(total);
+            if (!newTotalText.equals(grandTotalField.getText())) {
+                internalUpdate = true;
+                grandTotalField.setText(newTotalText); // "12345 IQ"
+                internalUpdate = false;
+            }
+        }
+    }
+
+    // يربط Listeners لحقول المبالغ المشتقة
+    private void hookDerivedCalculations() {
+        javax.swing.event.DocumentListener dl = new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { 
+                if (!internalUpdate) scheduleRecalc(); 
+            }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { 
+                if (!internalUpdate) scheduleRecalc(); 
+            }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { 
+                if (!internalUpdate) scheduleRecalc(); 
+            }
+        };
+        JTextField[] drivers = { grandTotalField, depositAmountField, amountDueReceivedField };
+        for (JTextField tf : drivers) {
+            if (tf != null && tf.getDocument() != null) {
+                tf.getDocument().addDocumentListener(dl);
+            }
+        }
+    }
+
+    // يحسب الواجب الدفع والمتبقي ويعرضهما بصيغة IQ
+    private void computeDerivedTotals() {
+        if (grandTotalField == null || amountDueField == null || remainingAmountField == null) return;
+
+        long grandTotal = parseMoney(grandTotalField.getText());
+        long deposit    = parseMoney(depositAmountField != null ? depositAmountField.getText() : "0");
+        long due        = Math.max(0L, grandTotal - Math.max(0L, deposit));
+        
+        String newDueText = toIQ(due);
+        if (!newDueText.equals(amountDueField.getText())) {
+            internalUpdate = true;
+            amountDueField.setText(newDueText);
+            internalUpdate = false;
+        }
+
+        long received   = parseMoney(amountDueReceivedField != null ? amountDueReceivedField.getText() : "0");
+        long remaining  = Math.max(0L, due - Math.max(0L, received));
+        
+        String newRemainingText = toIQ(remaining);
+        if (!newRemainingText.equals(remainingAmountField.getText())) {
+            internalUpdate = true;
+            remainingAmountField.setText(newRemainingText);
+            internalUpdate = false;
+        }
+    }
+
+    // ============================ جلب العرض والتعبئة ============================
+
+    private static class BookingDataFull {
+        int id;
+        String bookingType;
+
+        String hallName; int day; int month; int year;
+        String name; String phone; String mahar;
+
+        String eventType, eventTime, phonePolicy, genderType, sweetsProvider, tableClothColor, djName;
+
+        String guestsCount, depositAmount, totalAmount, otherCosts, koshaFee, koshaNumber, tablesFlowersFee;
+
+        String foamCakeMoldFee, sparklersFee, shamBandFee, djFee, bubblesFee, laserLightingFee, smokeFee, mixerCraneCamerasFee;
+
+        String camerasCount, camerasTotal, photoFee, photosCount, videoFee, datashowFee, datashowCount, studioFee;
+
+        String cakeMoldsCount, cakeMoldNumber, cakeAmount, cakePiecesCount, cakeCuttingFee, cakeMoldNumber2;
+
+        String childPlatesCount, childPlatePrice, plateWithDrinks2Price, appetizersPlatePrice;
+
+        String dinnerOption1, dinnerOption2, dinnerOption3, dinnerOption4, dinnerOption5;
+
+        String appetizersOption1, appetizersOption2, kidsPlateOption1, kidsPlateOption2;
+
+        String sparklersCount, breadOvenType, crane;
+
+        String grandTotal, amountDue, amountDueReceived, remainingAmount;
+
+        java.sql.Timestamp createdAt;
+    }
+
+    private BookingDataFull getBookingFull(String hallName, int day, int month, int year) {
+        String sql =
+            "SELECT * FROM bookings " +
+            "WHERE hall_name=? AND day=? AND month=? AND year=? " +
+            "ORDER BY CASE booking_type WHEN 'final' THEN 0 ELSE 1 END, id DESC";
+        try (Connection conn = JDBC.getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, hallName);
+            st.setInt(2, day);
+            st.setInt(3, month);
+            st.setInt(4, year);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    String type = rs.getString("booking_type");
+                    java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
+                    if ("final".equals(type)) {
+                        return mapRow(rs);
+                    } else if ("temp".equals(type)) {
+                        long now = System.currentTimeMillis();
+                        long t = createdAt != null ? createdAt.getTime() : now;
+                        long diffHours = (now - t) / (1000 * 60 * 60);
+                        if (diffHours < 24) return mapRow(rs);
+                        // انتهى المؤقت: احذف السطر
+                        deleteById(rs.getInt("id"));
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private BookingDataFull mapRow(ResultSet rs) throws Exception {
+        BookingDataFull b = new BookingDataFull();
+        b.id = rs.getInt("id");
+        b.bookingType = rs.getString("booking_type");
+        b.hallName = rs.getString("hall_name");
+        b.day = rs.getInt("day");
+        b.month = rs.getInt("month");
+        b.year = rs.getInt("year");
+        b.name = rs.getString("name");
+        b.phone = rs.getString("phone");
+        b.mahar = rs.getString("mahar");
+
+        b.eventType = rs.getString("event_type");
+        b.eventTime = rs.getString("event_time");
+        b.phonePolicy = rs.getString("phone_policy");
+        b.genderType = rs.getString("gender_type");
+        b.sweetsProvider = rs.getString("sweets_provider");
+        b.tableClothColor = rs.getString("table_cloth_color");
+        b.djName = rs.getString("dj_name");
+
+        b.guestsCount = rs.getString("guests_count");
+        b.depositAmount = rs.getString("deposit_amount");
+        b.totalAmount = rs.getString("total_amount");
+        b.otherCosts = rs.getString("other_costs");
+        b.koshaFee = rs.getString("kosha_fee");
+        b.koshaNumber = rs.getString("kosha_number");
+        b.tablesFlowersFee = rs.getString("tables_flowers_fee");
+
+        b.foamCakeMoldFee = rs.getString("foam_cake_mold_fee");
+        b.sparklersFee = rs.getString("sparklers_fee");
+        b.shamBandFee = rs.getString("sham_band_fee");
+        b.djFee = rs.getString("dj_fee");
+        b.bubblesFee = rs.getString("bubbles_fee");
+        b.laserLightingFee = rs.getString("laser_lighting_fee");
+        b.smokeFee = rs.getString("smoke_fee");
+        b.mixerCraneCamerasFee = rs.getString("mixer_crane_cameras_fee");
+
+        b.camerasCount = rs.getString("cameras_count");
+        b.camerasTotal = rs.getString("cameras_total");
+        b.photoFee = rs.getString("photo_fee");
+        b.photosCount = rs.getString("photos_count");
+        b.videoFee = rs.getString("video_fee");
+        b.datashowFee = rs.getString("datashow_fee");
+        b.datashowCount = rs.getString("datashow_count");
+        b.studioFee = rs.getString("studio_fee");
+
+        b.cakeMoldsCount = rs.getString("cake_molds_count");
+        b.cakeMoldNumber = rs.getString("cake_mold_number");
+        b.cakeAmount = rs.getString("cake_amount");
+        b.cakePiecesCount = rs.getString("cake_pieces_count");
+        b.cakeCuttingFee = rs.getString("cake_cutting_fee");
+        b.cakeMoldNumber2 = rs.getString("cake_mold_number2");
+
+        b.childPlatesCount = rs.getString("child_plates_count");
+        b.childPlatePrice = rs.getString("child_plate_price");
+        b.plateWithDrinks2Price = rs.getString("plate_with_drinks2_price");
+        b.appetizersPlatePrice = rs.getString("appetizers_plate_price");
+
+        b.dinnerOption1 = rs.getString("dinner_option1");
+        b.dinnerOption2 = rs.getString("dinner_option2");
+        b.dinnerOption3 = rs.getString("dinner_option3");
+        b.dinnerOption4 = rs.getString("dinner_option4");
+        b.dinnerOption5 = rs.getString("dinner_option5");
+
+        b.appetizersOption1 = rs.getString("appetizers_option1");
+        b.appetizersOption2 = rs.getString("appetizers_option2");
+        b.kidsPlateOption1 = rs.getString("kids_plate_option1");
+        b.kidsPlateOption2 = rs.getString("kids_plate_option2");
+
+        b.sparklersCount = rs.getString("sparklers_count");
+        b.breadOvenType = rs.getString("bread_oven_type");
+        b.crane = rs.getString("crane");
+
+        b.grandTotal = rs.getString("grand_total");
+        b.amountDue = rs.getString("amount_due");
+        b.amountDueReceived = rs.getString("amount_due_received");
+        b.remainingAmount = rs.getString("remaining_amount");
+
+        b.createdAt = rs.getTimestamp("created_at");
+        return b;
+    }
+
+    private static String nz(String s) { return s == null ? "" : s; }
+    private static void selectIfPresent(JComboBox<?> combo, String value) {
+        if (combo == null || value == null) return;
+        combo.setSelectedItem(value);
+    }
+
+    private void fillAllFieldsFrom(BookingDataFull b) {
+        nameField.setText(nz(b.name));
+        phoneField.setText(nz(b.phone));
+        maharField.setText(nz(b.mahar));
+
+        selectIfPresent(comboBox, b.eventType);
+        selectIfPresent(comtime, b.eventTime);
+        selectIfPresent(comphont, b.phonePolicy);
+        selectIfPresent(genderCombo, b.genderType);
+        selectIfPresent(sweetsProviderCombo, b.sweetsProvider);
+        selectIfPresent(tableClothColorCombo, b.tableClothColor);
+        selectIfPresent(djNameCombo, b.djName);
+
+        numberField.setText(nz(b.guestsCount));
+        depositAmountField.setText(nz(b.depositAmount));
+        totalAmountField.setText(nz(b.totalAmount));
+        otherCostsField.setText(nz(b.otherCosts));
+        koshaFeeField.setText(nz(b.koshaFee));
+        koshaNumberField.setText(nz(b.koshaNumber));
+        tablesFlowersFeeField.setText(nz(b.tablesFlowersFee));
+
+        foamCakeMoldFeeField.setText(nz(b.foamCakeMoldFee));
+        sparklersFeeField.setText(nz(b.sparklersFee));
+        shamBandFeeField.setText(nz(b.shamBandFee));
+        djFeeField.setText(nz(b.djFee));
+        bubblesField.setText(nz(b.bubblesFee));
+        laserLightingFeeField.setText(nz(b.laserLightingFee));
+        smokeFeeField.setText(nz(b.smokeFee));
+        mixerCraneCamerasFeeField.setText(nz(b.mixerCraneCamerasFee));
+
+        extraLeftField.setText(nz(b.camerasCount));
+        totalField.setText(nz(b.camerasTotal));
+        photoFeeField.setText(nz(b.photoFee));
+        photosCountField.setText(nz(b.photosCount));
+        videoFeeField.setText(nz(b.videoFee));
+        dataShowFeeField.setText(nz(b.datashowFee));
+        dataShowCountField.setText(nz(b.datashowCount));
+        studioFeeField.setText(nz(b.studioFee));
+
+        cakeMoldsCountField.setText(nz(b.cakeMoldsCount));
+        cakeMoldNumberField.setText(nz(b.cakeMoldNumber));
+        cakeAmountField.setText(nz(b.cakeAmount));
+        cakePiecesCountField.setText(nz(b.cakePiecesCount));
+        cakeCuttingFeeField.setText(nz(b.cakeCuttingFee));
+        cakeMoldNumber2Field.setText(nz(b.cakeMoldNumber2));
+
+        childPlatesCountField.setText(nz(b.childPlatesCount));
+        childPlatePriceField.setText(nz(b.childPlatePrice));
+        plateWithDrinks2PriceField.setText(nz(b.plateWithDrinks2Price));
+        appetizersPlatePriceField.setText(nz(b.appetizersPlatePrice));
+
+        selectIfPresent(dinnerOption1Combo, b.dinnerOption1);
+        selectIfPresent(dinnerOption2Combo, b.dinnerOption2);
+        selectIfPresent(dinnerOption3Combo, b.dinnerOption3);
+        selectIfPresent(dinnerOption4Combo, b.dinnerOption4);
+        selectIfPresent(dinnerOption5Combo, b.dinnerOption5);
+
+        selectIfPresent(appetizersOption1Combo, b.appetizersOption1);
+        selectIfPresent(appetizersOption2Combo, b.appetizersOption2);
+        selectIfPresent(kidsPlateOption1Combo, b.kidsPlateOption1);
+        selectIfPresent(kidsPlateOption2Combo, b.kidsPlateOption2);
+
+        selectIfPresent(sparklersCountCombo, b.sparklersCount);
+        selectIfPresent(breadOvenTypeCombo, b.breadOvenType);
+        if (craneCheckbox != null) craneCheckbox.setSelected("نعم".equals(b.crane));
+
+        grandTotalField.setText(nz(b.grandTotal));
+        amountDueField.setText(nz(b.amountDue));
+        amountDueReceivedField.setText(nz(b.amountDueReceived));
+        remainingAmountField.setText(nz(b.remainingAmount));
+
+        // بعد التعبئة من قاعدة البيانات احسب المجموع مجدداً بصيغة IQ باستخدام الجدولة المؤجلة
+        scheduleRecalc();
+    }
+
+    // تحميل بيانات يوم محدد وتعبئة الواجهة والتحكم بحالة الأزرار
+    private void loadBookingAndFillUI(String hallName, int day, int month, int year) {
+        BookingDataFull booking = getBookingFull(hallName, day, month, year);
+        if (booking != null) {
+            // تعبئة الحقول من قاعدة البيانات
+            fillAllFieldsFrom(booking);
+
+            // قفل التحرير لأن اليوم محجوز
+            setAllEditable(false);
+
+            // ضبط حالة الأزرار والعنوان
+            btnCancelBooking.setEnabled(true);
+            lblTitle.setText("اليوم محجوز: " + booking.name + " (" + booking.phone + ") " + (booking.mahar == null ? "" : booking.mahar));
+            if (bookingStateCallback != null) bookingStateCallback.accept(booking.bookingType);
+
+            if ("final".equals(booking.bookingType)) {
+                btnFinalBooking.setEnabled(false);
+                btnTempBooking.setEnabled(false);
+            } else { // temp
+                btnFinalBooking.setEnabled(true);
+                btnTempBooking.setEnabled(false);
+            }
+        } else {
+            // لا يوجد حجز: فعّل التحرير والأزرار
+            setAllEditable(true);
+
+            btnFinalBooking.setEnabled(true);
+            btnTempBooking.setEnabled(true);
+            btnCancelBooking.setEnabled(false);
+            lblTitle.setText("لا يوجد حجز لليوم المحدد");
+            if (bookingStateCallback != null) bookingStateCallback.accept("none");
+        }
+
+        // أعِد حساب المبالغ دائماً بعد التبديل
+        scheduleRecalc();
+    }
+
+    private void setAllEditable(boolean editable) {
+        // TextFields
+        JTextField[] tfs = {
+            nameField, phoneField, maharField, numberField, depositAmountField, totalAmountField, otherCostsField,
+            koshaFeeField, koshaNumberField, tablesFlowersFeeField,
+            foamCakeMoldFeeField, sparklersFeeField, shamBandFeeField, djFeeField, bubblesField, laserLightingFeeField,
+            smokeFeeField, mixerCraneCamerasFeeField, extraLeftField, totalField, photoFeeField, photosCountField,
+            videoFeeField, dataShowFeeField, dataShowCountField, studioFeeField, cakeMoldsCountField, cakeMoldNumberField,
+            cakeAmountField, cakePiecesCountField, cakeCuttingFeeField, cakeMoldNumber2Field, childPlatesCountField,
+            childPlatePriceField, plateWithDrinks2PriceField, appetizersPlatePriceField, grandTotalField, amountDueField,
+            amountDueReceivedField, remainingAmountField
+        };
+        for (JTextField tf : tfs) if (tf != null) tf.setEditable(editable);
+
+        // ComboBoxes
+        JComboBox<?>[] cbs = {
+            comboBox, comtime, comphont, genderCombo, sweetsProviderCombo, tableClothColorCombo, djNameCombo,
+            dinnerOption1Combo, dinnerOption2Combo, dinnerOption3Combo, dinnerOption4Combo, dinnerOption5Combo,
+            appetizersOption1Combo, appetizersOption2Combo, kidsPlateOption1Combo, kidsPlateOption2Combo,
+            sparklersCountCombo, breadOvenTypeCombo
+        };
+        for (JComboBox<?> cb : cbs) if (cb != null) cb.setEnabled(editable);
+
+        if (craneCheckbox != null) craneCheckbox.setEnabled(editable);
+    }
+
+    // ============================ الحفظ ============================
+
+    // Overload بدون bookingType — يعيد التوجيه ويضع booking_type="final"
+    private boolean saveBooking1(
+            String hallName, int day, int month, int year,
+            String name, String phone, String mahar,
+
+            String eventType, String eventTime, String phonePolicy, String genderType, String sweetsProvider, String tableClothColor, String djName,
+
+            String guestsCount, String depositAmount, String totalAmount, String otherCosts, String koshaFee, String koshaNumber, String tablesFlowersFee,
+
+            String foamCakeMoldFee, String sparklersFee, String shamBandFee, String djFee, String bubblesFee, String laserLightingFee, String smokeFee, String mixerCraneCamerasFee,
+
+            String camerasCount, String camerasTotal, String photoFee, String photosCount, String videoFee, String datashowFee, String datashowCount, String studioFee,
+
+            String cakeMoldsCount, String cakeMoldNumber, String cakeAmount, String cakePiecesCount, String cakeCuttingFee, String cakeMoldNumber2,
+
+            String childPlatesCount, String childPlatePrice, String plateWithDrinks2Price, String appetizersPlatePrice,
+
+            String dinnerOption1, String dinnerOption2, String dinnerOption3, String dinnerOption4, String dinnerOption5,
+
+            String appetizersOption1, String appetizersOption2, String kidsPlateOption1, String kidsPlateOption2,
+
+            String sparklersCount, String breadOvenType, String crane,
+
+            String grandTotal, String amountDue, String amountDueReceived, String remainingAmount
+    ) {
+        return saveBooking1(
+            hallName, day, month, year, name, phone, mahar, "final",
+            eventType, eventTime, phonePolicy, genderType, sweetsProvider, tableClothColor, djName,
+            guestsCount, depositAmount, totalAmount, otherCosts, koshaFee, koshaNumber, tablesFlowersFee,
+            foamCakeMoldFee, sparklersFee, shamBandFee, djFee, bubblesFee, laserLightingFee, smokeFee, mixerCraneCamerasFee,
+            camerasCount, camerasTotal, photoFee, photosCount, videoFee, datashowFee, datashowCount, studioFee,
+            cakeMoldsCount, cakeMoldNumber, cakeAmount, cakePiecesCount, cakeCuttingFee, cakeMoldNumber2,
+            childPlatesCount, childPlatePrice, plateWithDrinks2Price, appetizersPlatePrice,
+            dinnerOption1, dinnerOption2, dinnerOption3, dinnerOption4, dinnerOption5,
+            appetizersOption1, appetizersOption2, kidsPlateOption1, kidsPlateOption2,
+            sparklersCount, breadOvenType, crane,
+            grandTotal, amountDue, amountDueReceived, remainingAmount
+        );
+    }
+
+    // حفظ نهائي — النسخة الكاملة مع bookingType
+    private boolean saveBooking1(
+            String hallName, int day, int month, int year,
+            String name, String phone, String mahar, String bookingType,
+
+            String eventType, String eventTime, String phonePolicy, String genderType, String sweetsProvider, String tableClothColor, String djName,
+
+            String guestsCount, String depositAmount, String totalAmount, String otherCosts, String koshaFee, String koshaNumber, String tablesFlowersFee,
+
+            String foamCakeMoldFee, String sparklersFee, String shamBandFee, String djFee, String bubblesFee, String laserLightingFee, String smokeFee, String mixerCraneCamerasFee,
+
+            String camerasCount, String camerasTotal, String photoFee, String photosCount, String videoFee, String datashowFee, String datashowCount, String studioFee,
+
+            String cakeMoldsCount, String cakeMoldNumber, String cakeAmount, String cakePiecesCount, String cakeCuttingFee, String cakeMoldNumber2,
+
+            String childPlatesCount, String childPlatePrice, String plateWithDrinks2Price, String appetizersPlatePrice,
+
+            String dinnerOption1, String dinnerOption2, String dinnerOption3, String dinnerOption4, String dinnerOption5,
+
+            String appetizersOption1, String appetizersOption2, String kidsPlateOption1, String kidsPlateOption2,
+
+            String sparklersCount, String breadOvenType, String crane,
+
+            String grandTotal, String amountDue, String amountDueReceived, String remainingAmount
+    ) {
+        final String[] COLS = new String[] {
+            "hall_name","day","month","year","name","phone","mahar","booking_type",
+            "event_type","event_time","phone_policy","gender_type","sweets_provider","table_cloth_color","dj_name",
+            "guests_count","deposit_amount","total_amount","other_costs","kosha_fee","kosha_number","tables_flowers_fee",
+            "foam_cake_mold_fee","sparklers_fee","sham_band_fee","dj_fee","bubbles_fee","laser_lighting_fee","smoke_fee","mixer_crane_cameras_fee",
+            "cameras_count","cameras_total","photo_fee","photos_count","video_fee","datashow_fee","datashow_count","studio_fee",
+            "cake_molds_count","cake_mold_number","cake_amount","cake_pieces_count","cake_cutting_fee","cake_mold_number2",
+            "child_plates_count","child_plate_price","plate_with_drinks2_price","appetizers_plate_price",
+            "dinner_option1","dinner_option2","dinner_option3","dinner_option4","dinner_option5",
+            "appetizers_option1","appetizers_option2","kids_plate_option1","kids_plate_option2",
+            "sparklers_count","bread_oven_type","crane",
+            "grand_total","amount_due","amount_due_received","remaining_amount"
+        };
+
+        String placeholders = String.join(",", java.util.Collections.nCopies(COLS.length, "?"));
+        String sql = "INSERT INTO bookings (" + String.join(", ", COLS) + ") VALUES (" + placeholders + ")";
+
+        try (Connection conn = JDBC.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            int i = 1;
+            stmt.setString(i++, hallName);
+            stmt.setInt(i++, day);
+            stmt.setInt(i++, month);
+            stmt.setInt(i++, year);
+            stmt.setString(i++, name);
+            stmt.setString(i++, phone);
+            stmt.setString(i++, mahar);
+            stmt.setString(i++, bookingType);
+
+            stmt.setString(i++, eventType);
+            stmt.setString(i++, eventTime);
+            stmt.setString(i++, phonePolicy);
+            stmt.setString(i++, genderType);
+            stmt.setString(i++, sweetsProvider);
+            stmt.setString(i++, tableClothColor);
+            stmt.setString(i++, djName);
+
+            stmt.setString(i++, guestsCount);
+            stmt.setString(i++, depositAmount);
+            stmt.setString(i++, totalAmount);
+            stmt.setString(i++, otherCosts);
+            stmt.setString(i++, koshaFee);
+            stmt.setString(i++, koshaNumber);
+            stmt.setString(i++, tablesFlowersFee);
+
+            stmt.setString(i++, foamCakeMoldFee);
+            stmt.setString(i++, sparklersFee);
+            stmt.setString(i++, shamBandFee);
+            stmt.setString(i++, djFee);
+            stmt.setString(i++, bubblesFee);
+            stmt.setString(i++, laserLightingFee);
+            stmt.setString(i++, smokeFee);
+            stmt.setString(i++, mixerCraneCamerasFee);
+
+            stmt.setString(i++, camerasCount);
+            stmt.setString(i++, camerasTotal);
+            stmt.setString(i++, photoFee);
+            stmt.setString(i++, photosCount);
+            stmt.setString(i++, videoFee);
+            stmt.setString(i++, datashowFee);
+            stmt.setString(i++, datashowCount);
+            stmt.setString(i++, studioFee);
+
+            stmt.setString(i++, cakeMoldsCount);
+            stmt.setString(i++, cakeMoldNumber);
+            stmt.setString(i++, cakeAmount);
+            stmt.setString(i++, cakePiecesCount);
+            stmt.setString(i++, cakeCuttingFee);
+            stmt.setString(i++, cakeMoldNumber2);
+
+            stmt.setString(i++, childPlatesCount);
+            stmt.setString(i++, childPlatePrice);
+            stmt.setString(i++, plateWithDrinks2Price);
+            stmt.setString(i++, appetizersPlatePrice);
+
+            stmt.setString(i++, dinnerOption1);
+            stmt.setString(i++, dinnerOption2);
+            stmt.setString(i++, dinnerOption3);
+            stmt.setString(i++, dinnerOption4);
+            stmt.setString(i++, dinnerOption5);
+
+            stmt.setString(i++, appetizersOption1);
+            stmt.setString(i++, appetizersOption2);
+            stmt.setString(i++, kidsPlateOption1);
+            stmt.setString(i++, kidsPlateOption2);
+
+            stmt.setString(i++, sparklersCount);
+            stmt.setString(i++, breadOvenType);
+            stmt.setString(i++, crane);
+
+            stmt.setString(i++, grandTotal);
+            stmt.setString(i++, amountDue);
+            stmt.setString(i++, amountDueReceived);
+            stmt.setString(i++, remainingAmount);
+
+            int setCount = i - 1;
+            if (setCount != COLS.length) {
+                throw new IllegalStateException("Params mismatch: set=" + setCount + " expected=" + COLS.length);
+            }
+
+            stmt.executeUpdate();
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "خطأ في حفظ الحجز النهائي!\n" + ex.getMessage(), "خطأ", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
+    // حفظ مؤقت — booking_type = temp
+    private boolean saveTempBooking1(
+            String hallName, int day, int month, int year,
+            String name, String phone, String mahar,
+
+            String eventType, String eventTime, String phonePolicy, String genderType, String sweetsProvider, String tableClothColor, String djName,
+
+            String guestsCount, String depositAmount, String totalAmount, String otherCosts, String koshaFee, String koshaNumber, String tablesFlowersFee,
+
+            String foamCakeMoldFee, String sparklersFee, String shamBandFee, String djFee, String bubblesFee, String laserLightingFee, String smokeFee, String mixerCraneCamerasFee,
+
+            String camerasCount, String camerasTotal, String photoFee, String photosCount, String videoFee, String datashowFee, String datashowCount, String studioFee,
+
+            String cakeMoldsCount, String cakeMoldNumber, String cakeAmount, String cakePiecesCount, String cakeCuttingFee, String cakeMoldNumber2,
+
+            String childPlatesCount, String childPlatePrice, String plateWithDrinks2Price, String appetizersPlatePrice,
+
+            String dinnerOption1, String dinnerOption2, String dinnerOption3, String dinnerOption4, String dinnerOption5,
+
+            String appetizersOption1, String appetizersOption2, String kidsPlateOption1, String kidsPlateOption2,
+
+            String sparklersCount, String breadOvenType, String crane,
+
+            String grandTotal, String amountDue, String amountDueReceived, String remainingAmount
+    ) {
+        final String[] COLS = new String[] {
+            "hall_name","day","month","year","name","phone","mahar","booking_type",
+            "event_type","event_time","phone_policy","gender_type","sweets_provider","table_cloth_color","dj_name",
+            "guests_count","deposit_amount","total_amount","other_costs","kosha_fee","kosha_number","tables_flowers_fee",
+            "foam_cake_mold_fee","sparklers_fee","sham_band_fee","dj_fee","bubbles_fee","laser_lighting_fee","smoke_fee","mixer_crane_cameras_fee",
+            "cameras_count","cameras_total","photo_fee","photos_count","video_fee","datashow_fee","datashow_count","studio_fee",
+            "cake_molds_count","cake_mold_number","cake_amount","cake_pieces_count","cake_cutting_fee","cake_mold_number2",
+            "child_plates_count","child_plate_price","plate_with_drinks2_price","appetizers_plate_price",
+            "dinner_option1","dinner_option2","dinner_option3","dinner_option4","dinner_option5",
+            "appetizers_option1","appetizers_option2","kids_plate_option1","kids_plate_option2",
+            "sparklers_count","bread_oven_type","crane",
+            "grand_total","amount_due","amount_due_received","remaining_amount"
+        };
+
+        String placeholders = String.join(",", java.util.Collections.nCopies(COLS.length, "?"));
+        String sql = "INSERT INTO bookings (" + String.join(", ", COLS) + ") VALUES (" + placeholders + ")";
+
+        try (Connection conn = JDBC.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            int i = 1;
+            stmt.setString(i++, hallName);
+            stmt.setInt(i++, day);
+            stmt.setInt(i++, month);
+            stmt.setInt(i++, year);
+            stmt.setString(i++, name);
+            stmt.setString(i++, phone);
+            stmt.setString(i++, mahar);
+            stmt.setString(i++, "temp"); // booking_type
+
+            stmt.setString(i++, eventType);
+            stmt.setString(i++, eventTime);
+            stmt.setString(i++, phonePolicy);
+            stmt.setString(i++, genderType);
+            stmt.setString(i++, sweetsProvider);
+            stmt.setString(i++, tableClothColor);
+            stmt.setString(i++, djName);
+
+            stmt.setString(i++, guestsCount);
+            stmt.setString(i++, depositAmount);
+            stmt.setString(i++, totalAmount);
+            stmt.setString(i++, otherCosts);
+            stmt.setString(i++, koshaFee);
+            stmt.setString(i++, koshaNumber);
+            stmt.setString(i++, tablesFlowersFee);
+
+            stmt.setString(i++, foamCakeMoldFee);
+            stmt.setString(i++, sparklersFee);
+            stmt.setString(i++, shamBandFee);
+            stmt.setString(i++, djFee);
+            stmt.setString(i++, bubblesFee);
+            stmt.setString(i++, laserLightingFee);
+            stmt.setString(i++, smokeFee);
+            stmt.setString(i++, mixerCraneCamerasFee);
+
+            stmt.setString(i++, camerasCount);
+            stmt.setString(i++, camerasTotal);
+            stmt.setString(i++, photoFee);
+            stmt.setString(i++, photosCount);
+            stmt.setString(i++, videoFee);
+            stmt.setString(i++, datashowFee);
+            stmt.setString(i++, datashowCount);
+            stmt.setString(i++, studioFee);
+
+            stmt.setString(i++, cakeMoldsCount);
+            stmt.setString(i++, cakeMoldNumber);
+            stmt.setString(i++, cakeAmount);
+            stmt.setString(i++, cakePiecesCount);
+            stmt.setString(i++, cakeCuttingFee);
+            stmt.setString(i++, cakeMoldNumber2);
+
+            stmt.setString(i++, childPlatesCount);
+            stmt.setString(i++, childPlatePrice);
+            stmt.setString(i++, plateWithDrinks2Price);
+            stmt.setString(i++, appetizersPlatePrice);
+
+            stmt.setString(i++, dinnerOption1);
+            stmt.setString(i++, dinnerOption2);
+            stmt.setString(i++, dinnerOption3);
+            stmt.setString(i++, dinnerOption4);
+            stmt.setString(i++, dinnerOption5);
+
+            stmt.setString(i++, appetizersOption1);
+            stmt.setString(i++, appetizersOption2);
+            stmt.setString(i++, kidsPlateOption1);
+            stmt.setString(i++, kidsPlateOption2);
+
+            stmt.setString(i++, sparklersCount);
+            stmt.setString(i++, breadOvenType);
+            stmt.setString(i++, crane);
+
+            stmt.setString(i++, grandTotal);
+            stmt.setString(i++, amountDue);
+            stmt.setString(i++, amountDueReceived);
+            stmt.setString(i++, remainingAmount);
+
+            int setCount = i - 1;
+            if (setCount != COLS.length) {
+                throw new IllegalStateException("Params mismatch: set=" + setCount + " expected=" + COLS.length);
+            }
+
+            stmt.executeUpdate();
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "خطأ في حفظ الحجز المؤقت!\n" + ex.getMessage(), "خطأ", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
+    // ============================ الحذف ============================
+
+    private boolean deleteTempBookings(String hallName, int day, int month, int year) {
+        String sql = "DELETE FROM bookings WHERE booking_type='temp' AND hall_name=? AND day=? AND month=? AND year=?";
+        try (Connection conn = JDBC.getConnection(); PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, hallName);
+            st.setInt(2, day);
+            st.setInt(3, month);
+            st.setInt(4, year);
+            st.executeUpdate();
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "خطأ في حذف الحجوزات المؤقتة!\n" + ex.getMessage(), "خطأ",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
+    private boolean deleteLatestBookingForDate(String hallName, int day, int month, int year) {
+        String sql =
+            "DELETE FROM bookings WHERE id = (" +
+            "  SELECT id FROM (" +
+            "    SELECT id FROM bookings WHERE hall_name=? AND day=? AND month=? AND year=? ORDER BY id DESC LIMIT 1" +
+            "  ) x" +
+            ")";
+        try (Connection conn = JDBC.getConnection(); PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, hallName);
+            st.setInt(2, day);
+            st.setInt(3, month);
+            st.setInt(4, year);
+            int affected = st.executeUpdate();
+            if (affected > 0) return true;
+            JOptionPane.showMessageDialog(this, "لا يوجد حجز لهذا اليوم لإلغائه.", "معلومة",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "خطأ في إلغاء الحجز!\n" + ex.getMessage(), "خطأ",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
+    private boolean deleteById(int id) {
+        String sql = "DELETE FROM bookings WHERE id=?";
+        try (Connection conn = JDBC.getConnection(); PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setInt(1, id);
+            st.executeUpdate();
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    // ============================ أدوات مساعدة ============================
+
+    // يحوّل أي نص إلى رقم؛ يتجاهل الأحرف مثل IQ والفواصل
+    private static long parseMoney(String s) {
+        if (s == null) return 0L;
+        s = s.trim();
+        if (s.isEmpty()) return 0L;
+        s = s.replaceAll("[^0-9-]", "");
+        if (s.isEmpty() || "-".equals(s)) return 0L;
+        try { return Long.parseLong(s); } catch (NumberFormatException ex) { return 0L; }
+    }
+
+    // تنسيق بسيط للمجموع مع اللاحقة " IQ"
+    private static String toIQ(long value) {
+        // لإضافة فواصل آلاف: return String.format("%,d IQ", value);
+        return value + " IQ";
+    }
+
+    // ============================ دوال التحجيم والحساب المؤجل ============================
+
+    // تسجيل حقول المبالغ للتحجيم
+    private void registerAmountFields() {
+        amountFields.clear();
+        amountFields.add(totalAmountField);
+        amountFields.add(depositAmountField);
+        amountFields.add(otherCostsField);
+        amountFields.add(koshaFeeField);
+        amountFields.add(tablesFlowersFeeField);
+        amountFields.add(foamCakeMoldFeeField);
+        amountFields.add(sparklersFeeField);
+        amountFields.add(shamBandFeeField);
+        amountFields.add(djFeeField);
+        amountFields.add(bubblesField);
+        amountFields.add(laserLightingFeeField);
+        amountFields.add(smokeFeeField);
+        amountFields.add(mixerCraneCamerasFeeField);
+        amountFields.add(extraLeftField);
+        amountFields.add(totalField);
+        amountFields.add(photoFeeField);
+        amountFields.add(videoFeeField);
+        amountFields.add(dataShowFeeField);
+        amountFields.add(studioFeeField);
+        amountFields.add(cakeAmountField);
+        amountFields.add(cakeCuttingFeeField);
+        amountFields.add(childPlatePriceField);
+        amountFields.add(plateWithDrinks2PriceField);
+        amountFields.add(appetizersPlatePriceField);
+        amountFields.add(amountDueReceivedField); // يمكن إزالتها لاحقاً إذا أراد المستخدم
+    }
+
+    // ربط سلوك التحجيم بحقول المبالغ
+    private void attachAmountScalingBehavior() {
+        for (JTextField tf : amountFields) {
+            if (tf != null) {
+                // عند فقدان التركيز
+                tf.addFocusListener(new java.awt.event.FocusListener() {
+                    @Override
+                    public void focusGained(java.awt.event.FocusEvent e) {
+                        // إزالة اللاحقة " IQ" عند التركيز للتحرير
+                        String text = tf.getText().trim();
+                        if (text.endsWith(" IQ")) {
+                            tf.setText(text.substring(0, text.length() - 3).trim());
+                        }
+                    }
+                    
+                    @Override
+                    public void focusLost(java.awt.event.FocusEvent e) {
+                        applyScaling(tf);
+                    }
+                });
+                
+                // عند الضغط على Enter
+                tf.addActionListener(e -> applyScaling(tf));
+            }
+        }
+    }
+
+    // تطبيق التحجيم على حقل المبلغ
+    private void applyScaling(JTextField tf) {
+        String text = tf.getText().trim();
+        if (text.isEmpty()) return;
+        
+        // إزالة اللاحقة إذا كانت موجودة
+        if (text.endsWith(" IQ")) {
+            text = text.substring(0, text.length() - 3).trim();
+        }
+        
+        try {
+            long value = Long.parseLong(text);
+            // تحجيم القيم
+            if (tf == totalAmountField) {
+                value *= 1_000_000L; // ضرب في مليون للمبلغ الإجمالي
+            } else {
+                value *= 1_000L; // ضرب في ألف للحقول الأخرى
+            }
+            
+            internalUpdate = true;
+            tf.setText(toIQ(value));
+            internalUpdate = false;
+            
+        } catch (NumberFormatException ex) {
+            // في حالة خطأ التحويل، اتركه كما هو
+        }
+    }
+
+    // جدولة إعادة الحساب المؤجل
+    private void scheduleRecalc() {
+        if (recalcScheduled) return;
+        recalcScheduled = true;
+        SwingUtilities.invokeLater(this::doRecalc);
+    }
+
+    // تنفيذ إعادة الحساب الفعلي
+    private void doRecalc() {
+        recalcScheduled = false;
+        internalUpdate = true;
+        try {
+            recomputeGrandTotal();
+            computeDerivedTotals();
+        } finally {
+            internalUpdate = false;
+        }
+    }
+}
