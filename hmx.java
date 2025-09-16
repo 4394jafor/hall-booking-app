@@ -56,7 +56,11 @@ public class hmx extends JFrame {
 
     // أزرار وعنوان
     private JButton btnFinalBooking, btnTempBooking, btnCancelBooking, btnprint;
+    private JButton btnMorning, btnEvening;
     private JLabel lblTitle;
+
+    // فرض فترة معينة للنافذة (صباحا أو مساء)
+    private String forcedEventTime = null;
 
     // مصادر الجمع التلقائي
     private final List<JTextField> sumSources = new ArrayList<>();
@@ -143,6 +147,20 @@ public class hmx extends JFrame {
         btnCancelBooking.setBackground(new Color(65, 105, 225));
         btnCancelBooking.setBounds(10, 163, 280, 37);
         panel.add(btnCancelBooking);
+
+        // إضافة أزرار النوافذ المنفصلة للفترات
+        btnMorning = new JButton("نافذة صباحية");
+        btnMorning.setFont(new Font("Tahoma", Font.BOLD, 12));
+        btnMorning.setBackground(new Color(218, 165, 32));
+        btnMorning.setBounds(10, 210, 130, 32);
+        panel.add(btnMorning);
+
+        btnEvening = new JButton("نافذة مسائية");
+        btnEvening.setFont(new Font("Tahoma", Font.BOLD, 12));
+        btnEvening.setForeground(Color.WHITE);
+        btnEvening.setBackground(new Color(72, 61, 139));
+        btnEvening.setBounds(160, 210, 130, 32);
+        panel.add(btnEvening);
 
         JLabel lblmnasba = new JLabel("نوع المناسبة:");
         lblmnasba.setFont(new Font("Dialog", Font.BOLD, 15));
@@ -1136,6 +1154,25 @@ public class hmx extends JFrame {
             }
         });
 
+        // أزرار النوافذ المنفصلة للفترات
+        btnMorning.addActionListener(e -> {
+            hmx win = new hmx(day, month, year, hallName, bookingStateCallback);
+            SwingUtilities.invokeLater(() -> {
+                win.forceEventTime("صباحا");
+                win.loadBookingAndFillUI(hallName, day, month, year);
+                win.setVisible(true);
+            });
+        });
+
+        btnEvening.addActionListener(e -> {
+            hmx win = new hmx(day, month, year, hallName, bookingStateCallback);
+            SwingUtilities.invokeLater(() -> {
+                win.forceEventTime("مساء");
+                win.loadBookingAndFillUI(hallName, day, month, year);
+                win.setVisible(true);
+            });
+        });
+
         // ربط الجمع التلقائي لكل الحقول (مع استثناء الهاتف والمجموع نفسه)
         setupAutoSum(panel);
 
@@ -1148,6 +1185,17 @@ public class hmx extends JFrame {
         // بعد التحميل: أعِد حساب المجموع IQ والمبالغ المشتقة
         recomputeGrandTotal();
         computeDerivedTotals();
+    }
+
+    // فرض فترة معينة وقفل التغيير
+    public void forceEventTime(String value) {
+        forcedEventTime = value;
+        if (comtime != null) {
+            comtime.setSelectedItem(value);
+            comtime.setEnabled(false); // منع التغيير
+        }
+        // إعادة تحميل البيانات لتلك الفترة فقط
+        // يجب استدعاؤها بعد اكتمال البناء مع البيانات المناسبة
     }
 
     // ============================ دوال الجمع التلقائي (IQ) ============================
@@ -1252,16 +1300,21 @@ public class hmx extends JFrame {
     }
 
     private BookingDataFull getBookingFull(String hallName, int day, int month, int year) {
-        String sql =
-            "SELECT * FROM bookings " +
-            "WHERE hall_name=? AND day=? AND month=? AND year=? " +
-            "ORDER BY CASE booking_type WHEN 'final' THEN 0 ELSE 1 END, id DESC";
+        String base = "SELECT * FROM bookings WHERE hall_name=? AND day=? AND month=? AND year=?";
+        if (forcedEventTime != null) {
+            base += " AND event_time=?";
+        }
+        base += " ORDER BY CASE booking_type WHEN 'final' THEN 0 ELSE 1 END, id DESC";
+        
         try (Connection conn = JDBC.getConnection();
-             PreparedStatement st = conn.prepareStatement(sql)) {
+             PreparedStatement st = conn.prepareStatement(base)) {
             st.setString(1, hallName);
             st.setInt(2, day);
             st.setInt(3, month);
             st.setInt(4, year);
+            if (forcedEventTime != null) {
+                st.setString(5, forcedEventTime);
+            }
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     String type = rs.getString("booking_type");
